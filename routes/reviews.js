@@ -3,7 +3,6 @@
 const express = require('express');
 const reviewsController = require('../controllers/reviewsController');
 const jwtMiddleware = require('../middleware/jwtMiddleware');
-
 const router = express.Router();
 
 // All routes in this file will use the jwtMiddleware to verify the token and check if the user is an admin.
@@ -13,5 +12,6 @@ const router = express.Router();
 
 router.use(jwtMiddleware.verifyToken);
 
+router.post('/', jwtMiddleware.verifyToken, reviewsController.createReview);
 
 module.exports = router;

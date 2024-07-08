@@ -31,6 +31,7 @@ module.exports.generateToken = function (req, res, next) {
     };
 
     const token = jwt.sign(payload, secretKey, options, callback);
+    res.locals.member_id = token;
 };
 
 // The sendToken function sends the token to the client.
@@ -67,7 +68,7 @@ module.exports.verifyToken = function (req, res, next){
         res.locals.member_id = decoded.member_id,
         res.locals.role = decoded.role;
         res.locals.tokenTimestamp = decoded.timestamp;
-
+        console.log(res.locals.member_id)
         next();
     };
 
