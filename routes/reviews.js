@@ -12,6 +12,9 @@ const router = express.Router();
 
 router.use(jwtMiddleware.verifyToken);
 
+// ##############################################################
+// DEFINE ROUTES
+// ##############################################################
 router.post('/', jwtMiddleware.verifyToken, reviewsController.createReview);
 
 module.exports = router;

@@ -26,3 +26,9 @@ module.exports.createReview = function createReview(productId, member_id, review
             throw error;
         });
 };
+
+
+
+// ##############################################################
+// DEFINE MODEL FUNCTION TO RETRIEVE ALL REVIEWS
+// ##############################################################

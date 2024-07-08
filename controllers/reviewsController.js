@@ -1,6 +1,10 @@
 const { EMPTY_RESULT_ERROR, UNIQUE_VIOLATION_ERROR, DUPLICATE_TABLE_ERROR } = require('../errors');
 const reviewsModel = require('../models/reviews');
 
+
+// ##############################################################
+// DEFINE CONTROLLER FUNCTION TO CREATE REVIEW
+// ##############################################################
 module.exports.createReview = function (req, res) {
     const productId = req.body.productId;
     const member_id = res.locals.member_id;
@@ -20,3 +24,8 @@ module.exports.createReview = function (req, res) {
             return res.status(500).json({ error: error.message });
         });
 }
+
+
+// ##############################################################
+// DEFINE CONTROLLER FUNCTION TO RETRIEVE ALL REVIEWS
+// ##############################################################
