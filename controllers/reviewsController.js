@@ -29,3 +29,20 @@ module.exports.createReview = function (req, res) {
 // ##############################################################
 // DEFINE CONTROLLER FUNCTION TO RETRIEVE ALL REVIEWS
 // ##############################################################
+// In your controller file
+module.exports.getAllReviews = function (req, res) {
+    const member_id = res.locals.member_id;
+
+    return reviewsModel.getAllReviews(member_id)
+        .then(function (reviews) {
+            // Send the reviews data as JSON response
+            return res.json({ reviews });
+        })
+        .catch(function (error) {
+            console.error(error);
+            if (error instanceof EMPTY_RESULT_ERROR) {
+                return res.status(404).json({ error: error.message });
+            }
+            return res.status(500).json({ error: error.message });
+        });
+};

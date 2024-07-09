@@ -32,3 +32,13 @@ module.exports.createReview = function createReview(productId, member_id, review
 // ##############################################################
 // DEFINE MODEL FUNCTION TO RETRIEVE ALL REVIEWS
 // ##############################################################
+
+module.exports.getAllReviews = function (member_id) {
+    const sql = `SELECT * FROM get_all_reviews($1)`;
+    return query(sql, [member_id])
+        .then(function (result) {
+            const rows = result.rows;
+            console.log(rows); // For debugging purposes
+            return rows; // Return all rows
+        });
+};
