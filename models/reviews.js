@@ -42,3 +42,30 @@ module.exports.getAllReviews = function (member_id) {
             return rows; // Return all rows
         });
 };
+
+
+// ##############################################################
+// DEFINE MODEL FUNCTION TO UPDATE REVIEW
+// ##############################################################
+
+module.exports.updateReview = function updateReview(reviewId, rating, reviewtext) {
+    console.log('Parameters received:', {reviewId, rating, reviewtext});
+
+    if (!reviewId || !rating || !reviewtext) {
+        console.error('Error: All parameters must be provided');
+        throw new Error('All parameters must be provided');
+    }
+
+    return query('CALL update_review($1::INT, $2::INT, $3::TEXT)', [reviewId, rating, reviewtext])
+        .then(function (result) {
+            console.log('Review updated successfully');
+        })
+        .catch(function (error) {
+            console.error(error);
+            if (error.code === 'SQL_ERROR_CODE.UNIQUE_VIOLATION') {
+                throw new UNIQUE_VIOLATION_ERROR(`Review ${reviewId} does not exist!`);
+            }
+            throw error;
+        });
+};
+

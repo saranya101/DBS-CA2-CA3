@@ -29,7 +29,7 @@ module.exports.createReview = function (req, res) {
 // ##############################################################
 // DEFINE CONTROLLER FUNCTION TO RETRIEVE ALL REVIEWS
 // ##############################################################
-// In your controller file
+
 module.exports.getAllReviews = function (req, res) {
     const member_id = res.locals.member_id;
 
@@ -37,6 +37,31 @@ module.exports.getAllReviews = function (req, res) {
         .then(function (reviews) {
             // Send the reviews data as JSON response
             return res.json({ reviews });
+        })
+        .catch(function (error) {
+            console.error(error);
+            if (error instanceof EMPTY_RESULT_ERROR) {
+                return res.status(404).json({ error: error.message });
+            }
+            return res.status(500).json({ error: error.message });
+        });
+};
+
+// ##############################################################
+// DEFINE CONTROLLER FUNCTION TO UPDATE REVIEW 
+// ##############################################################
+
+
+module.exports.updateReview = function (req, res) {
+    const reviewId = req.params.reviewId;
+    const rating = req.body.rating;
+    const reviewtext = req.body.reviewText;
+    
+
+    reviewsModel.updateReview(reviewId, rating, reviewtext)
+        .then(function () {
+            console.log("Review Updated successfully!");
+            return res.status(200).json({ msg: "Review updated successfully!" });
         })
         .catch(function (error) {
             console.error(error);
