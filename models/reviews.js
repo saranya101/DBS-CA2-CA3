@@ -69,3 +69,21 @@ module.exports.updateReview = function updateReview(reviewId, rating, reviewtext
         });
 };
 
+
+// ##############################################################
+// DEFINE MODEL FUNCTION TO DELETE REVIEW
+// ##############################################################
+
+module.exports.deleteReview = function deleteReview(reviewId) {
+
+    return query( 'CALL delete_review($1)', [reviewId])
+     .then(function(result){
+        console.log(`Review ${reviewId} deleted successfully`);
+     })
+     .catch(function(error){
+        if(error.code === SQL_ERROR_CODE.UNIQUE_VIOLATION){
+            throw new EMPTY_RESULT_ERROR(`Review ${reviewId} does not exist!`)
+        }
+        throw error;
+     })
+};

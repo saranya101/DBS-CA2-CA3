@@ -16,10 +16,6 @@ window.addEventListener('DOMContentLoaded', function () {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-                rating: rating,
-                reviewText: reviewText
-            }),
         })
             .then(function (response) {
                 if (response.ok) {

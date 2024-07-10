@@ -71,3 +71,27 @@ module.exports.updateReview = function (req, res) {
             return res.status(500).json({ error: error.message });
         });
 };
+
+
+// ##############################################################
+// DEFINE CONTROLLER FUNCTION TO DELETE REVIEW 
+// ##############################################################
+
+module.exports.deleteReview = function (req, res) {
+    // Delete module by Code
+    const reviewId = req.params.reviewId;
+    return reviewsModel
+        .deleteReview(reviewId)
+        .then(function () {
+            console.log("Review deleted succesfully!");
+            return res.status(200).json({ msg: "deleted!" });
+        })
+        .catch(function (error) {
+            console.error(error);
+            if (error instanceof EMPTY_RESULT_ERROR) {
+                // return res.status(404).json({ error: error.message });
+                return res.status(404).json({ error: "No such review!" });
+            }
+            return res.status(500).json({ error: error.message });
+        });
+}
