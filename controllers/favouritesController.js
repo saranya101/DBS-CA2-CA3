@@ -91,3 +91,48 @@ module.exports.getAllListsWithCount = function (req, res) {
             return res.status(500).json({ error: error.message });
         });
 };
+
+
+// ##############################################################
+// DEFINE CONTROLLER FUNCTION TO UPDATE LISTNAME
+// ##############################################################
+
+module.exports.updateListName = function (req, res) {
+    const list_id = req.params.list_id;
+    const list_name = req.body.list_name;
+    
+
+    favouritesModel.updateListName(list_id, list_name)
+        .then(function () {
+            console.log("List name Updated successfully!");
+            return res.status(200).json({ msg: "List name updated successfully!" });
+        })
+        .catch(function (error) {
+            console.error(error);
+            if (error instanceof EMPTY_RESULT_ERROR) {
+                return res.status(404).json({ error: error.message });
+            }
+            return res.status(500).json({ error: error.message });
+        });
+};
+
+
+
+// ##############################################################
+// DEFINE CONTROLLER FUNCTION TO DELETE LIST 
+// ##############################################################
+
+
+module.exports.deleteList = function (req, res) {
+    const list_id = req.params.list_id;
+    return favouritesModel
+        .deleteList(list_id)
+        .then(function () {
+            console.log("List deleted successfully!");
+            return res.status(200).json({ msg: "List deleted!" });
+        })
+        .catch(function (error) {
+            console.error(error);
+            return res.status(500).json({ error: error.message });
+        });
+}

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update List Name</title>
+    <title>Confirm Deletion</title>
     <link href="/main.css" rel="stylesheet" />
     <link href="./index.css" rel="stylesheet" />
     <script src="./index.js" type="text/javascript" defer></script>
@@ -15,21 +15,22 @@
         <a href="../../../product/">Product</a>
         <a href="../../review/">Review</a>
         <a href="../../../favourite/">Favourite</a>
-        <a href="../../../cart/">Cart</a>        
-        <a href="#" onclick="logout()">Logout</a>     
+        <a href="../../../cart/">Cart</a>
+        <a href="#" onclick="logout()">Logout</a>
     </header>
     <section>
         <div>
-            <h1>Update the List Name</h1>
-            <form id="update-list-form">
+            <h1>Confirm Deletion</h1>
+            <p>Are you sure you want to delete this list?</p>
+            <form id="delete-confirm-form">
                 <input type="hidden" id="list-id" />
-                <label for="list-name">New List Name:</label>
-                <input type="text" id="list-name" name="list_name" required placeholder="Enter New List Name" />
-                <button type="submit">Update List Name</button>
+                <button type="submit">Yes, delete it</button>
+                <a href="../../../favourite/" class="cancel-btn">Cancel</a>
             </form>
         </div>
     </section>
     <script src="../../../auth.js" type="text/javascript" defer></script>
+   
 </body>
 
 </html>

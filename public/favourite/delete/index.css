@@ -1,0 +1,35 @@
+/* Base styles for buttons */
+button, .cancel-btn {
+    background-color: #007BFF; /* Blue background color */
+    color: white; /* White text color */
+    border: none; /* Remove default border */
+    padding: 10px 20px; /* Add padding */
+    text-align: center; /* Center text */
+    text-decoration: none; /* Remove underline from links */
+    display: inline-block; /* Inline-block to allow padding */
+    font-size: 16px; /* Font size */
+    margin: 5px 2px; /* Margin around buttons */
+    cursor: pointer; /* Pointer cursor on hover */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s; /* Smooth transition for background color */
+}
+
+/* Hover effect for buttons */
+button:hover, .cancel-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Styles for cancel button to appear as a link */
+.cancel-btn {
+    background-color: transparent; /* Transparent background */
+    color: #007BFF; /* Blue text color */
+    border: 1px solid #007BFF; /* Blue border */
+    padding: 10px 20px; /* Same padding as other buttons */
+    text-decoration: none; /* Remove underline */
+}
+
+/* Hover effect for cancel button */
+.cancel-btn:hover {
+    background-color: #e6f0ff; /* Light blue background on hover */
+    color: #0056b3; /* Darker blue text on hover */
+}

@@ -17,5 +17,7 @@ router.post('/create-list', jwtMiddleware.verifyToken, favouritesController.crea
 router.get('/lists', jwtMiddleware.verifyToken, favouritesController.getAllLists);
 router.post('/add-product', jwtMiddleware.verifyToken, favouritesController.addProduct);
 router.get('/listswithcount', jwtMiddleware.verifyToken, favouritesController.getAllListsWithCount)
+router.put('/:list_id',jwtMiddleware.verifyToken, favouritesController.updateListName);
+router.delete('/delete/:list_id', jwtMiddleware.verifyToken, favouritesController.deleteList)
 
 module.exports = router;

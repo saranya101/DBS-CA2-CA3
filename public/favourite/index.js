@@ -1,4 +1,3 @@
-// index.js
 window.addEventListener('DOMContentLoaded', function () {
     const token = localStorage.getItem('token');
 
@@ -73,31 +72,10 @@ window.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', function () {
                 const listId = this.getAttribute('data-list-id');
-                if (confirm('Are you sure you want to delete this list?')) {
-                    fetch(`/favourite/delete?id=${listId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            alert('List deleted successfully!');
-                            loadFavoriteLists(); // Reload the lists
-                        } else {
-                            return response.json().then(data => {
-                                throw new Error(data.error || 'Error deleting list');
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error deleting list:', error);
-                        alert(`Error deleting list: ${error.message}`);
-                    });
-                }
+                // Redirect to the delete confirmation page
+                window.location.href = `/favourite/delete?id=${listId}`;
             });
-        });
+        }); 
     }
 
     // Load the favorite lists on page load
