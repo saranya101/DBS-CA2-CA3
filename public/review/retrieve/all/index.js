@@ -50,7 +50,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
                 reviewElement.innerHTML = `
                     <h2>Review ID: ${review.reviewid}</h2>
-                    <p><strong>Product Name:</strong> ${review.productid}</p> 
+                    <p><strong>Product Name:</strong> ${review.productname}</p> 
                     <p><strong>Rating:</strong> ${'⭐'.repeat(review.rating)}</p>
                     <p><strong>Review Text:</strong> ${review.reviewtext}</p>
                     <p><strong>Review Date:</strong> ${new Date(review.updatedat).toLocaleDateString()}</p>
