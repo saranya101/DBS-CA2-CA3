@@ -7,7 +7,7 @@
     <title>Favorite Management | Create New Favorite</title>
     <link href="/main.css" rel="stylesheet" />
     <link href="./index.css" rel="stylesheet" />
-    <script src="./index.js" type="text/javascript"></script>
+    <script src="./index.js" type="text/javascript" defer></script>
 </head>
 
 <body>
@@ -24,14 +24,13 @@
 
             <!-- Form to add a product to an existing favorite list -->
             <form id="add-to-favorite-form">
-                <label for="productId">Product Id</label>
-                <input type="number" id="productId" name="productId" />
+                <label for="productId">Product Id:</label>
+                <input type="number" id="productId" name="productId" required placeholder="Enter Product Id" />
                 <br>
                 <label for="list-name">Favorite List Name:</label>
-                <input type="text" id="list-name" name="list_name" required placeholder="Enter List Name" />
-                <option value="">Select a List</option>
-                <!-- Options will be dynamically added here -->
-            </select>
+                <select id="list-name" name="list_name" required>
+                    <!-- Options will be dynamically added here -->
+                </select>
                 <button type="submit">Add to Favorite</button>
             </form>
 
@@ -41,13 +40,11 @@
             <form id="create-new-list-form">
                 <label for="new-list-name">New Favorite List Name:</label>
                 <input type="text" id="new-list-name" name="list_name" required placeholder="Enter New List Name" />
-
                 <button type="submit">Create New List</button>
             </form>
         </div>
     </section>
-    <script src="../../auth.js" type="text/javascript"></script>
-
+    <script src="../../auth.js" type="text/javascript" defer></script>
 </body>
 
 </html>
