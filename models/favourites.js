@@ -57,3 +57,17 @@ module.exports.addProduct = function addProduct(product_id, list_id) { // Use li
             return rows; // Return all rows
         });
 };
+
+// ##############################################################
+// DEFINE MODEL FUNCTION TO RETRIEVE ALL LISTS WITH COUNT 
+// ##############################################################
+
+module.exports.getAllListsWithCount = function getAllListsWithCount() {
+    const sql = `SELECT * FROM getListsWithCounts()`;
+    return query(sql)
+        .then(function (result) {
+            const rows = result.rows;
+            console.log(rows); // For debugging purposes
+            return rows; // Return all rows
+        });
+};

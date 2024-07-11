@@ -14,7 +14,8 @@ router.use(jwtMiddleware.verifyToken);
 // DEFINE ROUTES
 // ##############################################################
 router.post('/create-list', jwtMiddleware.verifyToken, favouritesController.createFavouriteList)
-router.get('/lists', favouritesController.getAllLists);
-router.post('/add-product', jwtMiddleware.verifyToken, favouritesController.addProduct)
+router.get('/lists', jwtMiddleware.verifyToken, favouritesController.getAllLists);
+router.post('/add-product', jwtMiddleware.verifyToken, favouritesController.addProduct);
+router.get('/listswithcount', jwtMiddleware.verifyToken, favouritesController.getAllListsWithCount)
 
 module.exports = router;
