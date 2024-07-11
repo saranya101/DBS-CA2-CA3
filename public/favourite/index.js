@@ -42,7 +42,7 @@ window.addEventListener('DOMContentLoaded', function () {
                 <h2>${list.listName}</h2>
                 <p><strong>Updated At:</strong> ${new Date(list.updatedAt).toLocaleDateString()}</p>
                 <p><strong>Number of Products:</strong> ${list.productCount}</p>
-                <button class="view-btn" data-list-id="${list.list_id}">View</button>
+                <button class="view-btn" data-list-id="${list.listId}">View</button>
                 <button class="update-btn" data-list-id="${list.listId}">Update</button>
                 <button class="delete-btn" data-list-id="${list.listId}">Delete</button>
             `;
@@ -58,13 +58,14 @@ window.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.view-btn').forEach(button => {
             button.addEventListener('click', function () {
                 const listId = this.getAttribute('data-list-id');
-                window.location.href = `/favourite/view?id=${listId}`;
+                window.location.href = `/favourite/retrieve?id=${listId}`;
             });
         });
 
         document.querySelectorAll('.update-btn').forEach(button => {
             button.addEventListener('click', function () {
                 const listId = this.getAttribute('data-list-id');
+                console.log('Navigating to update for listId:', listId); // Debugging
                 window.location.href = `/favourite/update?id=${listId}`;
             });
         });

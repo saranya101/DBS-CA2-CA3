@@ -1,0 +1,39 @@
+.product-item {
+    padding: 20px;
+    border-bottom: 1px dotted #ccc;
+    margin-bottom: 20px;
+}
+
+.product-item:last-child {
+    border-bottom: none;
+}
+
+.product-item h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.product-item p {
+    margin: 5px 0;
+}
+
+.product-item img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px 0;
+}
+
+.product-item button {
+    background-color: #659ea5;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 10px;
+}
+
+.product-item button:hover {
+    background-color: #025562;
+}

@@ -136,3 +136,26 @@ module.exports.deleteList = function (req, res) {
             return res.status(500).json({ error: error.message });
         });
 }
+
+
+// ##############################################################
+// DEFINE CONTROLLER FUNCTION TO GET ALL PRODUCTS IN A LIST
+// ##############################################################
+
+module.exports.getAllProducts = function (req, res) {
+    const listId = req.params.list_id; // Fetch listId from request parameters
+
+    console.log('Received listId:', listId); // Debugging
+
+    return favouritesModel.getAllProducts(listId)
+        .then(function (products) {
+            if (!products.length) {
+                return res.status(404).json({ error: 'No products found for this list' });
+            }
+            return res.json({ products });
+        })
+        .catch(function (error) {
+            console.error('Error fetching products:', error);
+            return res.status(500).json({ error: error.message });
+        });
+};

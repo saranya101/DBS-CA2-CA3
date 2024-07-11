@@ -122,3 +122,24 @@ module.exports.deleteList = function deleteList(list_id) {
             throw error;
         });
 };
+
+
+
+// ##############################################################
+// DEFINE MODEL FUNCTION TO GET ALL PRODUCTS IN A LIST 
+// ##############################################################
+
+module.exports.getAllProducts = function (list_id) {
+    const sql = 'SELECT * FROM get_products_in_list($1)';
+    return query(sql, [parseInt(list_id)]) // Ensure list_id is converted to integer
+        .then(function (result) {
+            const rows = result.rows;
+            console.log('Fetched rows:', rows); // Debugging
+            return rows; // Return all rows
+        })
+        .catch(function (error) {
+            console.error('Database query error:', error);
+            throw error; // Rethrow to be handled by the controller
+        });
+};
+

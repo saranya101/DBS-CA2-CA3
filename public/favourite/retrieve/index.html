@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products in List</title>
+    <link href="/main.css" rel="stylesheet" />
+    <link href="./index.css" rel="stylesheet" />
+    <script src="./index.js" type="text/javascript" defer></script>
+</head>
+
+<body>
+    <header>
+        <a href="../../../product/">Product</a>
+        <a href="../../review/">Review</a>
+        <a href="../../../favourite/">Favourite</a>
+        <a href="../../../cart/">Cart</a>
+        <a href="#" onclick="logout()">Logout</a>
+    </header>
+    <section>
+        <div>
+            <h1>Products in List</h1>
+            <!-- Added a hidden input for list-id if needed -->
+            <input type="hidden" id="list-id" />
+            <div id="products-container">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+    <script src="../../../auth.js" type="text/javascript" defer></script>
+</body>
+
+</html>

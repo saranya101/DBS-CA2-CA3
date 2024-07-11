@@ -3,21 +3,21 @@ const favouritesController = require('../controllers/favouritesController');
 const jwtMiddleware = require('../middleware/jwtMiddleware');
 const router = express.Router();
 
-// All routes in this file will use the jwtMiddleware to verify the token and check if the user is an admin.
-// Here the jwtMiddleware is applied at the router level to apply to all routes in this file
-// But you can also apply the jwtMiddleware to individual routes
-// router.use(jwtMiddleware.verifyToken, jwtMiddleware.verifyIsAdmin);
-
+// Apply JWT middleware to all routes in this file
 router.use(jwtMiddleware.verifyToken);
 
 // ##############################################################
 // DEFINE ROUTES
 // ##############################################################
-router.post('/create-list', jwtMiddleware.verifyToken, favouritesController.createFavouriteList)
+router.post('/create-list', jwtMiddleware.verifyToken, favouritesController.createFavouriteList);
 router.get('/lists', jwtMiddleware.verifyToken, favouritesController.getAllLists);
 router.post('/add-product', jwtMiddleware.verifyToken, favouritesController.addProduct);
-router.get('/listswithcount', jwtMiddleware.verifyToken, favouritesController.getAllListsWithCount)
-router.put('/:list_id',jwtMiddleware.verifyToken, favouritesController.updateListName);
-router.delete('/delete/:list_id', jwtMiddleware.verifyToken, favouritesController.deleteList)
+router.get('/listswithcount', jwtMiddleware.verifyToken, favouritesController.getAllListsWithCount);
+router.get('/lists/:list_id', jwtMiddleware.verifyToken, favouritesController.getAllProducts);
+router.put('/:list_id', jwtMiddleware.verifyToken, favouritesController.updateListName);
+router.delete('/delete/:list_id', jwtMiddleware.verifyToken, favouritesController.deleteList);
 
 module.exports = router;
+
+
+
