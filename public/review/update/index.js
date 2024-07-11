@@ -20,6 +20,7 @@ window.addEventListener('DOMContentLoaded', function () {
     }
 
     reviewIdInput.value = reviewId;
+    reviewIdInput.readOnly = true; // Make the reviewId input read-only
 
     form.onsubmit = function (e) {
         e.preventDefault(); // prevent using the default submit behavior
@@ -53,7 +54,7 @@ window.addEventListener('DOMContentLoaded', function () {
         .then(function (response) {
             if (response.ok) {
                 alert('Review updated!');
-                // Clear the input field
+                // Clear the input fields
                 ratingInput.value = "";
                 reviewTextInput.value = "";
             } else {

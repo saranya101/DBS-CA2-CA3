@@ -43,6 +43,18 @@ module.exports.getAllReviews = function (member_id) {
         });
 };
 
+// ##############################################################
+// DEFINE MODEL FUNCTION TO RETRIEVE SPECIFIC REVIEW 
+// ##############################################################
+module.exports.getSpecificReview = function (reviewId) {
+    const sql = `SELECT * FROM get_review($1)`;
+    return query(sql, [reviewId])
+        .then(function (result) {
+            const rows = result.rows;
+            console.log(rows); // For debugging purposes
+            return rows; // Return all rows
+        });
+};
 
 // ##############################################################
 // DEFINE MODEL FUNCTION TO UPDATE REVIEW

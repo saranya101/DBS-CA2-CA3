@@ -48,6 +48,28 @@ module.exports.getAllReviews = function (req, res) {
 };
 
 // ##############################################################
+// DEFINE CONTROLLER FUNCTION TO RETRIEVE ALL REVIEWS
+// ##############################################################
+
+module.exports.getSpecificReview = function (req, res) {
+    const reviewId = req.params.reviewId;
+
+    return reviewsModel
+    .getSpecificReview(reviewId)
+        .then(function (reviews) {
+            // Send the reviews data as JSON response
+            return res.json({ reviews });
+        })
+        .catch(function (error) {
+            console.error(error);
+            if (error instanceof EMPTY_RESULT_ERROR) {
+                return res.status(404).json({ error: error.message });
+            }
+            return res.status(500).json({ error: error.message });
+        });
+};
+
+// ##############################################################
 // DEFINE CONTROLLER FUNCTION TO UPDATE REVIEW 
 // ##############################################################
 

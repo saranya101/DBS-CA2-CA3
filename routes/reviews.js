@@ -17,6 +17,7 @@ router.use(jwtMiddleware.verifyToken);
 // ##############################################################
 router.post('/', jwtMiddleware.verifyToken, reviewsController.createReview);
 router.get('/', jwtMiddleware.verifyToken, reviewsController.getAllReviews);
+router.get('/specific/:reviewId', jwtMiddleware.verifyToken, reviewsController.getSpecificReview);
 router.put('/:reviewId',jwtMiddleware.verifyToken, reviewsController.updateReview);
 router.delete('/:reviewId', jwtMiddleware.verifyToken, reviewsController.deleteReview);
 module.exports = router;

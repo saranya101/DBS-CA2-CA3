@@ -1,4 +1,3 @@
-
 function fetchReviews() {
     // Get token from localStorage
     const token = localStorage.getItem('token');
@@ -17,7 +16,6 @@ function fetchReviews() {
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-		console.log(response)
         return response.json();
     })
     .catch(function (error) {
@@ -34,7 +32,6 @@ window.addEventListener('DOMContentLoaded', function () {
             }
 
             const reviews = body.reviews;
-			console.log(reviews)
             const reviewContainer = document.querySelector("#review-container");
 
             if (!reviewContainer) {
@@ -54,6 +51,7 @@ window.addEventListener('DOMContentLoaded', function () {
                     <p><strong>Rating:</strong> ${'⭐'.repeat(review.rating)}</p>
                     <p><strong>Review Text:</strong> ${review.reviewtext}</p>
                     <p><strong>Review Date:</strong> ${new Date(review.updatedat).toLocaleDateString()}</p>
+                    <button class="view-more-btn" data-review-id="${review.reviewid}">View More</button>
                     <button class="update-btn" data-review-id="${review.reviewid}">Update</button>
                     <button class="delete-btn" data-review-id="${review.reviewid}">Delete</button>
                 `;
@@ -61,7 +59,18 @@ window.addEventListener('DOMContentLoaded', function () {
                 reviewContainer.appendChild(reviewElement);
             });
 
-            // Add event listeners for update and delete buttons
+            // Add event listeners for update, delete, and view more buttons
+            document.querySelectorAll(".view-more-btn").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    const reviewId = button.getAttribute("data-review-id");
+                    console.log(`View More button clicked for review_id: ${reviewId}`);
+                    localStorage.setItem("reviewId", reviewId);
+                    window.location.href = `../one/index.html?id=${reviewId}`;
+                });
+            });
+            
+
+
             document.querySelectorAll(".update-btn").forEach(function (button) {
                 button.addEventListener("click", function () {
                     const reviewId = button.getAttribute("data-review-id");
