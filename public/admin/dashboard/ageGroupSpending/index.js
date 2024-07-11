@@ -29,7 +29,7 @@ window.addEventListener('DOMContentLoaded', function () {
                     const numberOfMembersCell = document.createElement("td");
                     ageGroupCell.textContent = spending.ageGroup;
                     totalSpendingCell.textContent = spending.totalSpending;
-                    numberOfMembersCell.textContent = spending.numOfMembers;
+                    numberOfMembersCell.textContent = spending.numMembers;
 
                     row.appendChild(ageGroupCell);
                     row.appendChild(totalSpendingCell);

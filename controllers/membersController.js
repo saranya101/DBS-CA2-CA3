@@ -24,9 +24,22 @@ module.exports.login = function (req, res, next) {
         });
 }
 
-module.exports.retrieveAgeGroupSpending = function (req, res) {
+module.exports.retrieveAgeGroupSpending = async function (req, res) {
+    const gender = req.query.gender || null;
+    const minTotalSpending = req.query.minTotalSpending ? parseFloat(req.query.minTotalSpending) : 0;
+    const minMemberTotalSpending = req.query.minMemberTotalSpending ? parseFloat(req.query.minMemberTotalSpending) : 0;
 
-}
+    console.log('Received request with params:', { gender, minTotalSpending, minMemberTotalSpending });
+
+    try {
+        const result = await memberModel.retrieveAgeGroupSpending(gender, minTotalSpending, minMemberTotalSpending);
+        console.log('Sending response:', result);
+        res.json({ spendings: result });
+    } catch (error) {
+        console.error('Error in retrieveAgeGroupSpending controller:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
 
 module.exports.generateCustomerLifetimeValue = function (req, res) {
     return memberModel.generateCustomerLifetimeValue()
