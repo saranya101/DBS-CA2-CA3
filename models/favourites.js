@@ -143,3 +143,19 @@ module.exports.getAllProducts = function (list_id) {
         });
 };
 
+// ##############################################################
+// DEFINE MODEL FUNCTION TO REMOVE PRODUCT FROM LIST
+// ##############################################################
+
+module.exports.deleteProduct = function (listId, productId) {
+    return query('SELECT * FROM remove_product_from_list($1, $2)', [listId, productId])
+        .then((result) => {
+            console.log(`Product ${productId} removed successfully from list ${listId}`);
+        })
+        .catch((error) => {
+            if (error.code === '23503') { // Adjust the error code based on your SQL database
+                throw new EMPTY_RESULT_ERROR(`Product ${productId} does not exist in this list!`);
+            }
+            throw error;
+        });
+};

@@ -159,3 +159,32 @@ module.exports.getAllProducts = function (req, res) {
             return res.status(500).json({ error: error.message });
         });
 };
+
+
+// ##############################################################
+// DEFINE CONTROLLER FUNCTION TO REMOVE PRODUCT FROM LIST
+// ##############################################################
+
+module.exports.deleteProduct = function (req, res) {
+    const listId = req.params.list_id;
+    const productId = req.params.product_id;
+
+    // Log for debugging
+    console.log(`Attempting to delete product ${productId} from list ${listId}`);
+
+    return favouritesModel
+        .deleteProduct(listId, productId)
+        .then(() => {
+            console.log(`Product ${productId} removed successfully from list ${listId}`);
+            res.status(200).json({ msg: "Product deleted successfully" });
+        })
+        .catch((error) => {
+            console.error('Error removing product:', error);
+
+            if (error instanceof EMPTY_RESULT_ERROR) {
+                return res.status(404).json({ error: "No such product in this list!" });
+            }
+
+            return res.status(500).json({ error: error.message });
+        });
+};

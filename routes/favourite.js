@@ -16,7 +16,7 @@ router.get('/listswithcount', jwtMiddleware.verifyToken, favouritesController.ge
 router.get('/lists/:list_id', jwtMiddleware.verifyToken, favouritesController.getAllProducts);
 router.put('/:list_id', jwtMiddleware.verifyToken, favouritesController.updateListName);
 router.delete('/delete/:list_id', jwtMiddleware.verifyToken, favouritesController.deleteList);
-
+router.delete('/removefromlist/:list_id/product/:product_id', jwtMiddleware.verifyToken, favouritesController.deleteProduct);
 module.exports = router;
 
 
