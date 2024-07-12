@@ -3,6 +3,8 @@
 ## Setup
 
 1. Clone this repository
+https://github.com/soc-DBS/dbs-assignment-saranya101
+
 
 2. Create a .env file with the following content
 
