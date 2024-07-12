@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('delete-confirm-form').addEventListener('submit', function (event) {
         event.preventDefault();
 
-        fetch(`/favourite/removefromlist/${listId}`, { // Fixed URL format
+        fetch(`/favourite/delete/${listId}`, { // Fixed URL format
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`,
