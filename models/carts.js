@@ -118,3 +118,58 @@ module.exports.updateCartSingleCartItem = function updateCartSingleCartItem(memb
         throw error;
       });
   };
+
+
+  // ##############################################################
+// DEFINE MODEL FUNCTION TO DELETE PRODUCT FROM CART
+// ################################################################
+
+module.exports.deleteSingleCartItem= function  deleteSingleCartItem(memberId, productId) {
+    return prisma.cartItem.delete({
+      where: {
+        memberId_productId: {
+          memberId,
+          productId,
+        },
+      },
+    }).catch(error => {
+      console.error('Error deleting cart item:', error);
+      throw error;
+    });
+  };
+
+
+
+
+  module.exports.getCartSummary = function getCartSummary(memberId) {
+    return prisma.cartItem.findMany({
+      where: {
+        memberId: memberId,
+      },
+      include: {
+        product: true, // Include product details
+      },
+    }).then(cartItems => {
+      // Calculate total quantity, total price, and unique products
+      let totalQuantity = 0;
+      let totalPrice = 0.0; // Start with a float
+  
+      cartItems.forEach(item => {
+        totalQuantity += item.quantity;
+        // Ensure unitPrice is a number before calculation
+        totalPrice += item.quantity * parseFloat(item.product.unitPrice);
+      });
+  
+      const uniqueProducts = cartItems.length; // Number of unique products
+  
+      // Return the summary as an object with totalPrice as a number
+      return {
+        totalQuantity: totalQuantity,
+        totalPrice: totalPrice, // Ensure this is a number
+        totalUniqueProducts: uniqueProducts
+      };
+    }).catch(error => {
+      console.error('Error calculating cart summary:', error);
+      throw error;
+    });
+  };

@@ -95,3 +95,53 @@ module.exports.updateCartSingleCartItem = function (req, res) {
         return res.status(500).json({ error: 'Internal server error' });
       });
   };
+
+
+  // ##############################################################
+// DEFINE CONTROLLER FUNCTION TO UPDATE QUANTITY OF PRODUCT
+// ################################################################
+  module.exports. deleteSingleCartItem = function (req, res) {
+    const memberId = res.locals.member_id; // Assuming member ID is stored in res.locals by middleware
+    const productId = parseInt(req.params.productId, 10);
+  
+    // Validate input
+    if (!productId) {
+      return res.status(400).json({ error: 'Invalid product ID' });
+    }
+  
+    cartModel.deleteSingleCartItem(memberId, productId)
+      .then(() => {
+        res.status(204).send(); // Send a 204 No Content status to indicate successful deletion
+      })
+      .catch(error => {
+        console.error('Error deleting cart item:', error);
+  
+        // Handle errors appropriately
+        if (error.code === 'P2025') { // Prisma error code for record not found
+          return res.status(404).json({ error: 'Cart item not found' });
+        }
+  
+        res.status(500).json({ error: 'Internal server error' });
+      });
+  };
+
+
+
+
+  module.exports.getCartSummary = function (req, res) {
+    const memberId = res.locals.member_id; // Assuming member ID is stored in res.locals by middleware
+  
+    cartModel.getCartSummary(memberId)
+      .then(summary => {
+        // Send the summary as a JSON response with totalPrice as a number
+        res.status(200).json({
+          totalQuantity: summary.totalQuantity,
+          totalPrice: parseFloat(summary.totalPrice), // Convert to number just in case
+          totalUniqueProducts: summary.totalUniqueProducts
+        });
+      })
+      .catch(error => {
+        console.error('Error retrieving cart summary:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      });
+  };
