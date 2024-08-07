@@ -145,3 +145,57 @@ module.exports.updateCartSingleCartItem = function (req, res) {
         res.status(500).json({ error: 'Internal server error' });
       });
   };
+
+
+
+  module.exports.bulkUpdateCartItems = async function (req, res) {
+    const updates = req.body; // Expecting an array of { productId, quantity }
+    const memberId = res.locals.member_id;
+  
+    try {
+      const updatePromises = updates.map(item =>
+        prisma.cartItem.update({
+          where: {
+            memberId_productId: {
+              memberId: memberId,
+              productId: parseInt(item.productId, 10),
+            },
+          },
+          data: {
+            quantity: item.quantity,
+          },
+        })
+      );
+  
+      await Promise.all(updatePromises);
+      res.status(200).json({ message: 'Bulk update successful' });
+    } catch (error) {
+      console.error('Error performing bulk update:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  
+  module.exports.bulkDeleteCartItems = async function (req, res) {
+    const productIds = req.body.productIds; // Expecting an array of productIds
+    const memberId = res.locals.member_id;
+  
+    try {
+      const deletePromises = productIds.map(id =>
+        prisma.cartItem.delete({
+          where: {
+            memberId_productId: {
+              memberId: memberId,
+              productId: parseInt(id, 10),
+            },
+          },
+        })
+      );
+  
+      await Promise.all(deletePromises);
+      res.status(204).send(); // No content
+    } catch (error) {
+      console.error('Error performing bulk delete:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  

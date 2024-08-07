@@ -15,4 +15,8 @@ router.get('/cart-items', cartController.getCartItems);
 router.put('/cart-items/:productId', cartController.updateCartSingleCartItem);
 router.delete('/cart-items/:productId', cartController.deleteSingleCartItem);
 router.get('/cart-summary', cartController.getCartSummary);
+router.put('/cart-items', cartController.bulkUpdateCartItems);
+
+// Route for bulk delete
+router.delete('/cart-items', cartController.bulkDeleteCartItems);
 module.exports = router;

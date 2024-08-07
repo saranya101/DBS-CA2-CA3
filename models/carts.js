@@ -173,3 +173,37 @@ module.exports.deleteSingleCartItem= function  deleteSingleCartItem(memberId, pr
       throw error;
     });
   };
+
+
+  module.exports.bulkUpdateCartItems = function bulkUpdateCartItems(memberId, items) {
+    const updatePromises = items.map(item => {
+        return prisma.cartItem.update({
+            where: {
+                memberId_productId: {
+                    memberId: memberId,
+                    productId: item.productId,
+                },
+            },
+            data: {
+                quantity: item.quantity,
+            },
+        });
+    });
+
+    return Promise.all(updatePromises);
+};
+
+module.exports.bulkDeleteCartItems = function bulkDeleteCartItems(memberId, productIds) {
+    const deletePromises = productIds.map(productId => {
+        return prisma.cartItem.delete({
+            where: {
+                memberId_productId: {
+                    memberId: memberId,
+                    productId: productId,
+                },
+            },
+        });
+    });
+
+    return Promise.all(deletePromises);
+};

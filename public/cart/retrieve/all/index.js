@@ -1,7 +1,6 @@
-
 function fetchCartItems(token) {
   // Fetch cart items from the server
-  return fetch('/carts/cart-items', { // Ensure this endpoint matches your server's route
+  return fetch('/carts/cart-items', {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -41,6 +40,7 @@ function fetchCartItems(token) {
         const deleteButton = document.createElement("button");
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
+        checkbox.dataset.productId = cartItem.productId; // Store productId in the checkbox
 
         // Convert unitPrice to a number
         const unitPrice = parseFloat(cartItem.unitPrice);
@@ -57,7 +57,7 @@ function fetchCartItems(token) {
         // Make quantityCell an editable input field
         const quantityInput = document.createElement("input");
         quantityInput.type = "number";
-        quantityInput.min = 1; // Ensure the quantity is always positive
+        quantityInput.min = 0; // Allow setting quantity to 0 for deletion
         quantityInput.value = cartItem.quantity;
         quantityInput.addEventListener("input", function () {
           // Only allow numeric values
@@ -72,40 +72,64 @@ function fetchCartItems(token) {
         // Add event listener to updateButton
         updateButton.addEventListener("click", function () {
           const updatedQuantity = parseInt(quantityInput.value, 10);
-          if (!Number.isInteger(updatedQuantity) || updatedQuantity <= 0) {
-            alert("Quantity must be a positive number.");
-            return;
-          }
 
-          const updatedCartItem = {
-            quantity: updatedQuantity,
-            productId: cartItem.productId // Ensure this ID is correct
-          };
-
-          // Send a PUT request to update the cart item
-          fetch('/carts/cart-items/' + cartItem.productId, { // Corrected endpoint
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(updatedCartItem)
-          })
-            .then(response => {
-              if (!response.ok) {
-                throw new Error('Failed to update cart item');
+          if (updatedQuantity === 0) {
+            // Automatically delete if quantity is 0
+            if (!confirm("Quantity is 0. Do you want to remove this item from the cart?")) {
+              return;
+            }
+            // Send a DELETE request to remove the cart item
+            fetch('/carts/cart-items/' + cartItem.productId, {
+              method: 'DELETE',
+              headers: {
+                Authorization: `Bearer ${token}`
               }
-              return response.json();
             })
-            .then(() => {
-              // Refresh the cart items to reflect the updated quantity
-              fetchCartItems(token);
-              alert("Quantity updated successfully!");
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('Failed to delete cart item');
+                }
+                // Refresh the cart items after deletion
+                fetchCartItems(token);
+                alert("Item deleted successfully!");
+              })
+              .catch(error => {
+                console.error(error);
+                alert("Error deleting cart item.");
+              });
+          } else if (updatedQuantity > 0) {
+            const updatedCartItem = {
+              quantity: updatedQuantity,
+              productId: cartItem.productId // Ensure this ID is correct
+            };
+
+            // Send a PUT request to update the cart item
+            fetch('/carts/cart-items/' + cartItem.productId, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify(updatedCartItem)
             })
-            .catch(error => {
-              console.error(error);
-              alert("Error updating cart item.");
-            });
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('Failed to update cart item');
+                }
+                return response.json();
+              })
+              .then(() => {
+                // Refresh the cart items to reflect the updated quantity
+                fetchCartItems(token);
+                alert("Quantity updated successfully!");
+              })
+              .catch(error => {
+                console.error(error);
+                alert("Error updating cart item.");
+              });
+          } else {
+            alert("Quantity must be a positive number.");
+          }
         });
 
         // Add event listener to deleteButton
@@ -115,7 +139,7 @@ function fetchCartItems(token) {
           }
 
           // Send a DELETE request to remove the cart item
-          fetch('/carts/cart-items/' + cartItem.productId, { // Corrected endpoint
+          fetch('/carts/cart-items/' + cartItem.productId, {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`
@@ -149,6 +173,15 @@ function fetchCartItems(token) {
         tbody.appendChild(row);
       });
 
+      // Add event listener for select all checkbox
+      const selectAllCheckbox = document.getElementById('selectAll');
+      selectAllCheckbox.addEventListener('change', function () {
+        const checkboxes = tbody.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = selectAllCheckbox.checked;
+        });
+      });
+
       // Fetch and display the cart summary after loading the items
       return fetchCartSummary(token);
     })
@@ -158,9 +191,97 @@ function fetchCartItems(token) {
     });
 }
 
+// Function to handle bulk update of selected cart items
+function bulkUpdateCartItems(token) {
+  const checkboxes = document.querySelectorAll("#cart-items-tbody input[type='checkbox']:checked");
+  const updatePromises = [];
+
+  checkboxes.forEach(checkbox => {
+    const row = checkbox.closest("tr");
+    const quantityInput = row.querySelector("input[type='number']");
+    const productId = checkbox.dataset.productId; // Get productId from data attribute
+
+    const updatedQuantity = parseInt(quantityInput.value, 10);
+
+    if (updatedQuantity === 0) {
+      // Add a DELETE request if the quantity is set to 0
+      updatePromises.push(
+        fetch('/carts/cart-items/' + productId, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+      );
+    } else if (updatedQuantity > 0) {
+      const updatedCartItem = {
+        quantity: updatedQuantity,
+        productId: productId
+      };
+
+      // Add each update fetch call to promises array
+      updatePromises.push(
+        fetch('/carts/cart-items/' + productId, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(updatedCartItem)
+        })
+      );
+    } else {
+      console.warn(`Invalid quantity for product ID ${productId}: ${updatedQuantity}`);
+    }
+  });
+
+  // Process all updates and refresh cart items
+  Promise.all(updatePromises)
+    .then(() => {
+      alert("Selected items updated successfully!");
+      fetchCartItems(token);
+    })
+    .catch(error => {
+      console.error(error);
+      alert("Error updating selected cart items.");
+    });
+}
+
+// Function to handle bulk deletion of selected cart items
+function bulkDeleteCartItems(token) {
+  const checkboxes = document.querySelectorAll("#cart-items-tbody input[type='checkbox']:checked");
+  const deletePromises = [];
+
+  checkboxes.forEach(checkbox => {
+    const productId = checkbox.dataset.productId; // Get productId from data attribute
+
+    // Add each delete fetch call to promises array
+    deletePromises.push(
+      fetch('/carts/cart-items/' + productId, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+    );
+  });
+
+  // Process all deletions and refresh cart items
+  Promise.all(deletePromises)
+    .then(() => {
+      alert("Selected items deleted successfully!");
+      fetchCartItems(token);
+    })
+    .catch(error => {
+      console.error(error);
+      alert("Error deleting selected cart items.");
+    });
+}
+
+// Function to fetch cart summary and display it
 function fetchCartSummary(token) {
   // Fetch cart summary from the server
-  return fetch('/carts/cart-summary', { // Ensure this endpoint matches your server's route
+  return fetch('/carts/cart-summary', {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -203,17 +324,13 @@ window.addEventListener('DOMContentLoaded', function () {
   fetchCartItems(token).catch(error => {
     console.error(error);
   });
-});
 
-// Load cart items on page load
-window.addEventListener('DOMContentLoaded', function () {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    alert("Please login to access your cart.");
-    return;
+  // Add event listeners for bulk update and delete buttons
+  const bulkUpdateButton = document.getElementById('bulk-update');
+  const bulkDeleteButton = document.getElementById('bulk-delete');
+
+  if (bulkUpdateButton && bulkDeleteButton) {
+    bulkUpdateButton.addEventListener('click', () => bulkUpdateCartItems(token));
+    bulkDeleteButton.addEventListener('click', () => bulkDeleteCartItems(token));
   }
-
-  fetchCartItems(token).catch(error => {
-    console.error(error);
-  });
 });
