@@ -1,3 +1,52 @@
-const { query } = require('../database');
-const { EMPTY_RESULT_ERROR, SQL_ERROR_CODE, UNIQUE_VIOLATION_ERROR } = require('../errors');
+const { PrismaClient, Prisma } = require('@prisma/client');
+const prisma = new PrismaClient();
 
+
+
+module.exports.createSingleCartItem = function createSingleCartItem(memberId, productId, quantity) {
+    return prisma.cartItem.findUnique({
+        where: {
+            memberId_productId: {
+                memberId,
+                productId,
+            },
+        },
+    }).then(function (existingCartItem) {
+        if (existingCartItem) {
+            // Update the existing cart item with the new quantity
+            return prisma.cartItem.update({
+                where: {
+                    id: existingCartItem.id,
+                },
+                data: {
+                    quantity: existingCartItem.quantity + quantity,
+                    updatedAt: new Date(),
+                },
+            });
+        } else {
+            // Create a new cart item
+            return prisma.cartItem.create({
+                data: {
+                    member: {
+                        connect: { id: memberId },
+                    },
+                    product: {
+                        connect: { id: productId },
+                    },
+                    quantity,
+                },
+            });
+        }
+    }).then(function (cartItem) {
+        // Return the updated or new cart item
+        return cartItem;
+    }).catch(function (error) {
+        // Handle Prisma Errors, specifically P2002 for unique constraint violation
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === 'P2002') {
+                throw new Error(`Cart item for product ${productId} already exists.`);
+            }
+        }
+        throw error;
+    });
+};

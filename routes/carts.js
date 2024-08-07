@@ -10,6 +10,6 @@ const router = express.Router();
 // router.use(jwtMiddleware.verifyToken, jwtMiddleware.verifyIsAdmin);
 
 router.use(jwtMiddleware.verifyToken);
-
+router.post('/create', cartController.addToCart);
 
 module.exports = router;
