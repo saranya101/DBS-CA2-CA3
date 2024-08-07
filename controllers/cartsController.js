@@ -60,5 +60,38 @@ module.exports.getCartItems = function (req, res) {
   };
 
   // ##############################################################
-// DEFINE CONTROLLER FUNCTION TO RETRIEVE ALL PRODUCTS
-// ##############################################################
+// DEFINE CONTROLLER FUNCTION TO UPDATE QUANTITY OF PRODUCT
+// ################################################################
+
+module.exports.updateCartSingleCartItem = function (req, res) {
+    // Retrieve member ID from res.locals (assuming it was set by previous middleware)
+    const memberId = res.locals.member_id;
+  
+    // Parse product ID from request parameters
+    const productId = parseInt(req.params.productId, 10);
+  
+    // Parse quantity from request body
+    const quantity = parseInt(req.body.quantity, 10);
+  
+    // Validate inputs
+    if (!productId || !quantity || quantity <= 0) {
+      return res.status(400).json({ error: 'Invalid product ID or quantity' });
+    }
+  
+    // Use the model function to update the quantity of the cart item
+    cartModel.updateCartSingleCartItem(memberId, productId, quantity)
+      .then(function (updatedCartItem) {
+        // Return a 200 status and the updated cart item details to indicate success
+        return res.status(200).json(updatedCartItem);
+      })
+      .catch(function (error) {
+        console.error('Error updating cart item quantity:', error);
+  
+        // Handle errors appropriately
+        if (error.message.includes('not found')) {
+          return res.status(404).json({ error: error.message });
+        }
+  
+        return res.status(500).json({ error: 'Internal server error' });
+      });
+  };

@@ -12,4 +12,5 @@ const router = express.Router();
 router.use(jwtMiddleware.verifyToken);
 router.post('/create', cartController.addToCart);
 router.get('/cart-items', cartController.getCartItems);
+router.put('/cart-items/:productId', cartController.updateCartSingleCartItem);
 module.exports = router;

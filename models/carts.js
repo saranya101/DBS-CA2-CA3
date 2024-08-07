@@ -84,3 +84,37 @@ module.exports.getAllCartItems = function getAllCartItems(memberId) {
 // ##############################################################
 // DEFINE MODEL FUNCTION TO UPDATE THE QUANTITY
 // ##############################################################
+
+module.exports.updateCartSingleCartItem = function updateCartSingleCartItem(memberId, productId, quantity) {
+    return prisma.cartItem.findUnique({
+      where: {
+        memberId_productId: {
+          memberId,
+          productId,
+        },
+      },
+    })
+      .then(function (cartItem) {
+        if (!cartItem) {
+          throw new Error(`Cart item for product ${productId} not found.`);
+        }
+  
+        // Update the quantity of the cart item
+        return prisma.cartItem.update({
+          where: {
+            id: cartItem.id,
+          },
+          data: {
+            quantity: quantity,
+            updatedAt: new Date(),
+          },
+        });
+      })
+      .catch(function (error) {
+        // Handle any errors that occur during the update process
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          // Handle specific Prisma errors if necessary
+        }
+        throw error;
+      });
+  };

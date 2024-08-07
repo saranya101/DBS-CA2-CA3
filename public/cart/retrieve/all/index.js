@@ -1,10 +1,7 @@
-/**
- * Fetch and display all cart items from the server
- * @param {string} token - The JWT token for authentication
- */
+
 function fetchCartItems(token) {
     // Fetch cart items from the server
-    return fetch('/carts/cart-items', { // Make sure the endpoint matches your server's route
+    return fetch('/carts/cart-items', { // Ensure this endpoint matches your server's route
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -48,9 +45,6 @@ function fetchCartItems(token) {
           // Convert unitPrice to a number
           const unitPrice = parseFloat(cartItem.unitPrice);
   
-          // Debug: Log the unitPrice
-          console.log('Unit Price:', unitPrice, 'Type:', typeof unitPrice);
-  
           // Populate the cells with data
           descriptionCell.textContent = cartItem.name; // Adjust attribute names as per your cart item object
           countryCell.textContent = cartItem.country;
@@ -77,15 +71,15 @@ function fetchCartItems(token) {
   
           // Add event listener to updateButton
           updateButton.addEventListener("click", function () {
-            const updatedQuantity = quantityInput.value;
-            if (updatedQuantity <= 0) {
+            const updatedQuantity = parseInt(quantityInput.value, 10);
+            if (!Number.isInteger(updatedQuantity) || updatedQuantity <= 0) {
               alert("Quantity must be a positive number.");
               return;
             }
   
             const updatedCartItem = {
-              quantity: Number(updatedQuantity),
-              productId: cartItem.productId // Make sure you use the correct ID field
+              quantity: updatedQuantity,
+              productId: cartItem.productId // Ensure this ID is correct
             };
   
             // Send a PUT request to update the cart item
@@ -106,6 +100,7 @@ function fetchCartItems(token) {
               .then(() => {
                 // Refresh the cart items to reflect the updated quantity
                 fetchCartItems(token);
+                alert("Quantity updated successfully!");
               })
               .catch(error => {
                 console.error(error);
