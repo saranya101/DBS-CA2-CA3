@@ -2,7 +2,9 @@ const { PrismaClient, Prisma } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 
-
+// ##############################################################
+// DEFINE MODEL FUNCTION TO ADDING INTO CART
+// ##############################################################
 module.exports.createSingleCartItem = function createSingleCartItem(memberId, productId, quantity) {
     return prisma.cartItem.findUnique({
         where: {
@@ -50,3 +52,35 @@ module.exports.createSingleCartItem = function createSingleCartItem(memberId, pr
         throw error;
     });
 };
+
+
+// ##############################################################
+// DEFINE MODEL FUNCTION TO RETRIEVE ALL PRODUCTS IN CART
+// ##############################################################
+
+module.exports.getAllCartItems = function getAllCartItems(memberId) {
+    return prisma.cartItem.findMany({
+      where: { memberId },
+      include: {
+        product: true, // Include product details
+      },
+    })
+    .then(cartItems => {
+      // Transform the cartItems to include only relevant details
+      return cartItems.map(cartItem => ({
+        cartItemId: cartItem.id,
+        productId: cartItem.product.id,
+        name: cartItem.product.name,
+        description: cartItem.product.description,
+        country: cartItem.product.country,
+        unitPrice: cartItem.product.unitPrice,
+        quantity: cartItem.quantity,
+        subTotalPrice: cartItem.quantity * cartItem.product.unitPrice,
+      }));
+    });
+  };
+
+
+// ##############################################################
+// DEFINE MODEL FUNCTION TO UPDATE THE QUANTITY
+// ##############################################################
