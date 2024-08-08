@@ -275,3 +275,18 @@ module.exports.applyCoupon = async function (req, res) {
     res.status(400).json({ success: false, error: error.message });
   }
 };
+
+
+// ##############################################################
+//  SHIPPING ORDERS
+// ##############################################################
+
+module.exports.getShippingOptions = async function (req, res) {
+  try {
+    const shippingOptions = await cartModel.getShippingOptions();
+    res.status(200).json(shippingOptions);
+  } catch (error) {
+    console.error('Error retrieving shipping options:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

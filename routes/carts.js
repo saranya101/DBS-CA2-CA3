@@ -21,4 +21,5 @@ router.put('/cart-items', cartController.bulkUpdateCartItems);
 router.delete('/cart-items', cartController.bulkDeleteCartItems);
 router.get('/checkout', cartController.getCartItems);
 router.post('/apply-coupon', cartController.applyCoupon);
+router.get('/shipping-options', cartController.getShippingOptions);
 module.exports = router;

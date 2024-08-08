@@ -7,8 +7,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const token = getAuthToken(); // Get the token when the page loads
     const cartItems = await fetchCartItems(token);
     renderCartItems(cartItems, 0);
+    await fetchShippingOptions(token); // Fetch shipping options
+
+    // Add event listener to the shipping options dropdown
+    const shippingSelect = document.getElementById('shipping-options');
+    if (shippingSelect) {
+      shippingSelect.addEventListener('change', () => updatePricesWithShipping(cartItems));
+    }
   } catch (error) {
-    console.error('Error fetching cart items:', error);
+    console.error('Error fetching cart items or shipping options:', error);
   }
 });
 
@@ -92,4 +99,52 @@ function renderCartItems(cartItems, totalDiscountedPrice) {
 // Function to get the authentication token
 function getAuthToken() {
   return localStorage.getItem("token");
+}
+
+// Function to fetch and populate shipping options
+async function fetchShippingOptions(token) {
+  const response = await fetch('/carts/shipping-options', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error('Network response was not ok ' + response.statusText);
+  }
+
+  const shippingOptions = await response.json();
+  const shippingSelect = document.getElementById('shipping-options');
+  shippingOptions.forEach(option => {
+    const cost = Number(option.cost); // Ensure cost is a number
+    const opt = document.createElement('option');
+    opt.value = option.id;
+    opt.dataset.cost = cost; // Store the cost in a data attribute
+    opt.textContent = `${option.name} - $${cost.toFixed(2)} (${option.deliveryTime})`;
+    shippingSelect.appendChild(opt);
+  });
+}
+
+// Function to update prices with selected shipping option
+function updatePricesWithShipping(cartItems) {
+  const shippingSelect = document.getElementById('shipping-options');
+  const selectedOption = shippingSelect.options[shippingSelect.selectedIndex];
+  const shippingCost = parseFloat(selectedOption.dataset.cost);
+
+  let totalQuantity = 0;
+  let totalPrice = 0.0;
+  let totalDiscountPrice = 0.0;
+
+  cartItems.forEach(item => {
+    totalQuantity += item.quantity;
+    totalPrice += item.quantity * item.unitPrice;
+    totalDiscountPrice += item.quantity * item.discountedPrice;
+  });
+
+  totalPrice += shippingCost;
+  totalDiscountPrice += shippingCost;
+
+  document.getElementById('total-price').textContent = totalPrice.toFixed(2);
+  document.getElementById('total-discounted-price').textContent = totalDiscountPrice.toFixed(2);
 }

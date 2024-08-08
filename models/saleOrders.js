@@ -23,11 +23,9 @@ module.exports.retrieveAll = function retrieveAll(memberId) {
 };
 
 
-
-
 module.exports = {
   // Function to retrieve all sale orders with optional filtering
-  retrieveAllWithFilters: async function(filters) {
+  retrieveAllWithFilters: async function (filters) {
     try {
       const where = {}; // Initialize a where object for filters
 
@@ -36,12 +34,12 @@ module.exports = {
         where.status = { in: filters.status.split(',') };
       }
       if (filters.minOrderDatetime) {
-        where.orderDatetime = { ...where.orderDatetime, gte: new Date(filters.minOrderDatetime) };
+        where.order_datetime = { ...where.order_datetime, gte: new Date(filters.minOrderDatetime) };
       }
       if (filters.maxOrderDatetime) {
-        where.orderDatetime = { ...where.orderDatetime, lte: new Date(filters.maxOrderDatetime) };
+        where.order_datetime = { ...where.order_datetime, lte: new Date(filters.maxOrderDatetime) };
       }
-      
+
       // Add filters for member username
       if (filters.username) {
         where.member = {
@@ -63,24 +61,24 @@ module.exports = {
       }
 
       // Fetch sale orders with Prisma
-      const saleOrders = await prisma.saleOrder.findMany({
+      const saleOrders = await prisma.sale_order.findMany({
         where,
         include: {
           member: true, // Include member details
-          saleOrderItem: {
+          sale_order_item: {
             include: {
-              product: true // Include product details in saleOrderItem
+              product: true // Include product details in sale_order_item
             }
           }
         },
         orderBy: {
-          orderDatetime: filters.sortOrder === 'desc' ? 'desc' : 'asc' // Order by datetime
+          order_datetime: filters.sortOrder === 'desc' ? 'desc' : 'asc' // Order by datetime
         }
       });
 
       // Filter the sale orders based on the product-related filters
       const filteredSaleOrders = saleOrders.map(order => {
-        const filteredItems = order.saleOrderItem.filter(item => {
+        const filteredItems = order.sale_order_item.filter(item => {
           let includeItem = true;
 
           // Apply quantity filters
@@ -92,10 +90,10 @@ module.exports = {
           }
 
           // Apply unit price filters
-          if (filters.minUnitPrice && parseFloat(item.product.unitPrice) < parseFloat(filters.minUnitPrice)) {
+          if (filters.minUnitPrice && parseFloat(item.product.unit_price) < parseFloat(filters.minUnitPrice)) {
             includeItem = false;
           }
-          if (filters.maxUnitPrice && parseFloat(item.product.unitPrice) > parseFloat(filters.maxUnitPrice)) {
+          if (filters.maxUnitPrice && parseFloat(item.product.unit_price) > parseFloat(filters.maxUnitPrice)) {
             includeItem = false;
           }
 
@@ -109,24 +107,24 @@ module.exports = {
 
         return {
           ...order,
-          saleOrderItem: filteredItems
+          sale_order_item: filteredItems
         };
-      }).filter(order => order.saleOrderItem.length > 0);
+      }).filter(order => order.sale_order_item.length > 0);
 
       // Transform sale orders for easier use in the view
       return filteredSaleOrders.map(order => ({
         saleOrderId: order.id,
-        orderDatetime: order.orderDatetime,
+        orderDatetime: order.order_datetime,
         status: order.status,
         username: order.member?.username || 'Unknown',
-        saleOrderItems: order.saleOrderItem.map(item => ({
+        saleOrderItems: order.sale_order_item.map(item => ({
           name: item.product.name,
           description: item.product.description,
-          unitPrice: item.product.unitPrice,
+          unitPrice: item.product.unit_price,
           quantity: item.quantity,
           country: item.product.country,
-          imageUrl: item.product.imageUrl,
-          productType: item.product.productType
+          imageUrl: item.product.image_url,
+          productType: item.product.product_type
         }))
       }));
 

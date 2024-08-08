@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart Management</title>
+    <link href="/main.css" rel="stylesheet" />
+    <link href="./index.css" rel="stylesheet" />
+    <script src="./index.js" defer></script>
+</head>
+<body>
+    <header>
+        <a href="../../../product/">Product</a>
+        <a href="../../../review/">Review</a>
+        <a href="../../../favourite/">Favourite</a>
+        <a href="../../">Cart</a>
+        <a href="#" onclick="logout()">Logout</a>
+    </header>
+    <section>
+      <div class="container">
+        <h1>Checkout</h1>
+        <div id="cart-items"></div>
+
+        <div class="cart-summary">
+          <div>Total Quantity: <span id="total-quantity">0</span></div><br>
+          <div>Total Price: $<span id="total-price">0.00</span></div><br>
+          <div>Total Discounted Price: $<span id="total-discounted-price">0.00</span></div><br>
+          <div>Total Unique Products: <span id="total-unique-products">0</span></div><br>
+        </div>
+        
+        <div>
+          <input type="text" id="coupon-code" placeholder="Enter coupon code">
+          <button id="apply-coupon-button">Apply Coupon</button>
+        </div>
+
+        <div>
+          <label for="shipping-options">Select Shipping Option:</label>
+          <select id="shipping-options">
+            <option value="" disabled selected>Select shipping option</option>
+          </select>
+        </div>
+        
+        <a href="../../checkOut" id="checkout-button">Confirm Checkout</a>
+      </div>
+    </section>
+    <script src="../../../auth.js" type="text/javascript"></script>
+</body>
+</html>

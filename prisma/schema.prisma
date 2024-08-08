@@ -94,6 +94,8 @@ model sale_order {
   status          String?           @db.VarChar(10)
   member          member?           @relation(fields: [member_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sale_order_member")
   sale_order_item sale_order_item[]
+  shippingMethod  shipping_method?  @relation(fields: [shipping_method_id], references: [id])
+  shipping_method_id Int?
 }
 
 model sale_order_item {
@@ -176,4 +178,12 @@ model UsedCoupon {
   usedOn            DateTime           @default(now()) @db.Timestamp(6)
   coupon            Coupon             @relation(fields: [couponId], references: [id])
   member            member             @relation(fields: [memberId], references: [id])
+}
+
+model shipping_method {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique @db.VarChar(50)
+  cost         Decimal  @db.Decimal(10, 2)
+  deliveryTime String   @db.VarChar(50)
+  sale_orders  sale_order[]
 }

@@ -30,11 +30,11 @@ module.exports.retrieveAll = function (req, res) {
 
 module.exports.retrieveAllWithFilters = async function (req, res) {
     try {
-        const filters = req.body; // Get filters from request body
-        const saleOrders = await saleOrdersModel.retrieveAllWithFilters(filters);
-        res.json({ saleOrders }); // Respond with sale orders
+      const filters = req.body;
+      const saleOrders = await saleOrdersModel.retrieveAllWithFilters(filters);
+      res.status(200).json({ saleOrders });
     } catch (error) {
-        console.error('Error retrieving sale orders:', error);
-        res.status(500).json({ error: 'Internal server error' });
+      console.error('Error retrieving sale orders:', error);
+      res.status(500).json({ error: 'Failed to retrieve sale orders' });
     }
   };

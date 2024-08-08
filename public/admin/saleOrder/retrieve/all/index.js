@@ -68,6 +68,7 @@ window.addEventListener('DOMContentLoaded', function () {
             });
         })
         .catch(function (error) {
+            alert('Error fetching sale orders: ' + error.message);
             console.error('Error fetching sale orders:', error);
         });
     }

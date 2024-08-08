@@ -397,3 +397,18 @@ module.exports.applyCoupon = async function applyCoupon(memberId, couponCode) {
     alertMessage: 'Coupon applied successfully!'
   };
 };
+
+
+// ##############################################################
+//  SHIPPING ORDERS
+// ##############################################################
+
+module.exports.getShippingOptions = async function () {
+  try {
+    const shippingOptions = await prisma.shipping_method.findMany();
+    return shippingOptions;
+  } catch (error) {
+    console.error('Error retrieving shipping options:', error);
+    throw error;
+  }
+};
