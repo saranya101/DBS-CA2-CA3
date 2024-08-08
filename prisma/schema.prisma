@@ -8,69 +8,71 @@ datasource db {
 }
 
 model favouritelistitems {
-  listItemId     Int            @id @default(autoincrement()) @map("list_item_id")
-  listId         Int            @map("list_id")
-  productId      Int            @map("product_id")
-  addedAt        DateTime?      @default(now()) @map("added_at") @db.Timestamp(6)
-  favouritelists favouritelists @relation(fields: [listId], references: [listId], onDelete: Cascade, onUpdate: NoAction)
-  product        product        @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  list_item_id   Int            @id @default(autoincrement())
+  list_id        Int
+  product_id     Int
+  added_at       DateTime?      @default(now()) @db.Timestamp(6)
+  favouritelists favouritelists @relation(fields: [list_id], references: [list_id], onDelete: Cascade, onUpdate: NoAction)
+  product        product        @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@unique([listId, productId])
+  @@unique([list_id, product_id])
 }
 
 model favouritelists {
-  listId             Int                  @id @default(autoincrement()) @map("list_id")
-  memberId           Int                  @map("member_id")
-  listName           String               @map("list_name") @db.VarChar(255)
-  createdAt          DateTime?            @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt          DateTime?            @default(now()) @map("updated_at") @db.Timestamp(6)
+  list_id            Int                  @id @default(autoincrement())
+  member_id          Int
+  list_name          String               @db.VarChar(255)
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  updated_at         DateTime?            @default(now()) @db.Timestamp(6)
   favouritelistitems favouritelistitems[]
-  member             member               @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: NoAction, name: "MemberToFavouriteLists")
+  member             member               @relation(fields: [member_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model member {
-  id                   Int              @id @default(autoincrement())
-  username             String           @unique @db.VarChar(50)
-  email                String           @unique @db.VarChar(50)
-  dob                  DateTime         @db.Date
-  password             String           @db.VarChar(255)
-  role                 Int
-  gender               String           @db.Char(1)
-  lastLoginOn          DateTime?        @default(now()) @map("last_login_on") @db.Timestamp(6)
-  clv                  Decimal?         @db.Decimal(10, 3)
-  runningTotalSpending Decimal?         @map("running_total_spending") @db.Decimal(10, 3)
-  favouritelists       favouritelists[] @relation(name: "MemberToFavouriteLists")
-  memberRole           memberRole       @relation(fields: [role], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_member_role_id")
-  reviews              reviews[]
-  saleOrder            saleOrder[]
-  cartItem             cartItem[]
-  usedDiscounts        UsedDiscount[]
+  id                     Int              @id @default(autoincrement())
+  username               String           @unique @db.VarChar(50)
+  email                  String           @unique @db.VarChar(50)
+  dob                    DateTime         @db.Date
+  password               String           @db.VarChar(255)
+  role                   Int
+  gender                 String           @db.Char(1)
+  last_login_on          DateTime?        @default(now()) @db.Timestamp(6)
+  clv                    Decimal?         @db.Decimal(10, 3)
+  running_total_spending Decimal?         @db.Decimal(10, 3)
+  favouritelists         favouritelists[]
+  member_role            member_role      @relation(fields: [role], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_member_role_id")
+  reviews                reviews[]
+  sale_order             sale_order[]
+    cartItem             cartItem[]
+      usedProductDiscounts UsedProductDiscount[]
+  usedCoupons          UsedCoupon[]
+
 }
 
-model memberRole {
+model member_role {
   id     Int      @id @default(autoincrement())
   name   String?  @db.VarChar(25)
   member member[]
-
-  @@map("member_role")
 }
 
 model product {
   id                 Int                  @id @default(autoincrement())
   name               String?              @db.VarChar(255)
   description        String?
-  unitPrice          Decimal              @map("unit_price") @db.Decimal
-  stockQuantity      Decimal              @default(0) @map("stock_quantity") @db.Decimal
+  unit_price         Decimal              @db.Decimal
+  stock_quantity     Decimal              @default(0) @db.Decimal
   country            String?              @db.VarChar(100)
-  productType        String?              @map("product_type") @db.VarChar(50)
-  imageUrl           String?              @default("/images/product.png") @map("image_url") @db.VarChar(255)
-  manufacturedOn     DateTime?            @map("manufactured_on") @db.Timestamp(6)
+  product_type       String?              @db.VarChar(50)
+  image_url          String?              @default("/images/product.png") @db.VarChar(255)
+  manufactured_on    DateTime?            @db.Timestamp(6)
   favouritelistitems favouritelistitems[]
   reviews            reviews[]
-  saleOrderItem      saleOrderItem[]
-  cartItem           cartItem[]
+  sale_order_item    sale_order_item[]
+    cartItem             cartItem[]
+      productDiscounts   ProductDiscount[]
 }
 
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model reviews {
   reviewid   Int       @id @default(autoincrement())
   productid  Int
@@ -85,40 +87,36 @@ model reviews {
   @@unique([productid, memberid])
 }
 
-model saleOrder {
-  id            Int             @id @default(autoincrement())
-  memberId      Int?            @map("member_id")
-  orderDatetime DateTime        @map("order_datetime") @db.Timestamp(6)
-  status        String?         @db.VarChar(10)
-  member        member?         @relation(fields: [memberId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sale_order_member")
-  saleOrderItem saleOrderItem[]
-
-  @@map("sale_order")
+model sale_order {
+  id              Int               @id @default(autoincrement())
+  member_id       Int?
+  order_datetime  DateTime          @db.Timestamp(6)
+  status          String?           @db.VarChar(10)
+  member          member?           @relation(fields: [member_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sale_order_member")
+  sale_order_item sale_order_item[]
 }
 
-model saleOrderItem {
-  id          Int       @id @default(autoincrement())
-  saleOrderId Int       @map("sale_order_id")
-  productId   Int       @map("product_id")
-  quantity    Decimal   @db.Decimal
-  product     product   @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sale_order_item_product")
-  saleOrder   saleOrder @relation(fields: [saleOrderId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sale_order_item_sale_order")
-
-  @@map("sale_order_item")
+model sale_order_item {
+  id            Int        @id @default(autoincrement())
+  sale_order_id Int
+  product_id    Int
+  quantity      Decimal    @db.Decimal
+  product       product    @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sale_order_item_product")
+  sale_order    sale_order @relation(fields: [sale_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sale_order_item_sale_order")
 }
 
 model supplier {
   id             Int       @id @default(autoincrement())
-  companyName    String    @map("company_name") @db.VarChar(255)
+  company_name   String    @db.VarChar(255)
   descriptor     String?
   address        String?   @db.VarChar(255)
   country        String    @db.VarChar(100)
-  contactEmail   String    @map("contact_email") @db.VarChar(50)
-  companyUrl     String?   @map("company_url") @db.VarChar(255)
-  foundedDate    DateTime? @map("founded_date") @db.Date
-  staffSize      Int?      @map("staff_size")
+  contact_email  String    @db.VarChar(50)
+  company_url    String?   @db.VarChar(255)
+  founded_date   DateTime? @db.Date
+  staff_size     Int?
   specialization String?   @db.VarChar(100)
-  isActive       Boolean?  @map("is_active")
+  is_active      Boolean?
 }
 
 model cartItem {
@@ -135,8 +133,9 @@ model cartItem {
   @@map("cart_item")
 }
 
-model Discount {
+model ProductDiscount {
   id                Int                @id @default(autoincrement())
+  productId         Int
   code              String             @unique
   description       String?
   discountPercentage Decimal            @db.Decimal(5, 2)
@@ -144,14 +143,37 @@ model Discount {
   validTo           DateTime           @db.Date
   usageLimit        Int                @default(1)
   timesUsed         Int                @default(0)
-  usedDiscounts     UsedDiscount[]
+  product           product            @relation(fields: [productId], references: [id])
+  usedDiscounts     UsedProductDiscount[]
 }
 
-model UsedDiscount {
-  id         Int      @id @default(autoincrement())
-  discount   Discount @relation(fields: [discountId], references: [id])
-  discountId Int
-  member     member   @relation(fields: [memberId], references: [id])
-  memberId   Int
-  usedOn     DateTime @default(now()) @db.Timestamp(6)
+model UsedProductDiscount {
+  id                Int                @id @default(autoincrement())
+  discountId        Int
+  memberId          Int
+  usedOn            DateTime           @default(now()) @db.Timestamp(6)
+  productDiscount   ProductDiscount    @relation(fields: [discountId], references: [id])
+  member            member             @relation(fields: [memberId], references: [id])
+}
+
+model Coupon {
+  id                Int                @id @default(autoincrement())
+  code              String             @unique
+  description       String?
+  discountPercentage Decimal            @db.Decimal(5, 2)
+  minPurchaseAmount Decimal?           @db.Decimal(10, 2)
+  validFrom         DateTime           @db.Date
+  validTo           DateTime           @db.Date
+  usageLimit        Int                @default(1)
+  timesUsed         Int                @default(0)
+  usedCoupons       UsedCoupon[]
+}
+
+model UsedCoupon {
+  id                Int                @id @default(autoincrement())
+  couponId          Int
+  memberId          Int
+  usedOn            DateTime           @default(now()) @db.Timestamp(6)
+  coupon            Coupon             @relation(fields: [couponId], references: [id])
+  member            member             @relation(fields: [memberId], references: [id])
 }
