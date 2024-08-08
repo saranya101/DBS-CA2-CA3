@@ -12,6 +12,6 @@ const router = express.Router();
 router.use(jwtMiddleware.verifyToken);
 
 router.get('/', saleOrdersController.retrieveAll);
-
+router.post('/filter', saleOrdersController.retrieveAllWithFilters);
 
 module.exports = router;

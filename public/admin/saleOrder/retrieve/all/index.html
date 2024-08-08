@@ -1,13 +1,13 @@
-<html>
-
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sale Order Management | Retrieve All</title>
     <link href="/main.css" rel="stylesheet" />
     <link href="/index.css" rel="stylesheet" />
     <link href="./index.css" rel="stylesheet" />
-    <script src="./index.js" type="text/javascript"></script>
+    <script src="./index.js" type="text/javascript" defer></script>
 </head>
-
 <body>
     <header>
         <a href="../../../dashboard/">Dashboard</a>
@@ -18,7 +18,7 @@
     <section>
         <div>
             <h1>Search Sale Orders</h1>
-            <form class="search">
+            <form class="search" id="searchForm">
                 <fieldset class="fieldset-group">
                     <legend>Order</legend>
                     <label>Status</label>
@@ -27,7 +27,6 @@
                         <option value="PACKING">PACKING</option>
                         <option value="CANCELLED">CANCELLED</option>
                     </select>
-
                     <p>
                         <label>Minimum Order Datetime</label>
                         <input type="date" name="minOrderDatetime" id="minOrderDatetime" />
@@ -84,13 +83,12 @@
                         </select>
                     </p>
                 </fieldset>
-                <button type="submit">Search</button>
+                <button type="submit" id="searchButton">Search</button>
             </form>
         </div>
         <h1>Sale Orders</h1>
         <table border="1">
             <thead>
-
                 <tr>
                     <th>Name</th>
                     <th>Description</th>
@@ -107,9 +105,7 @@
             </thead>
             <tbody id="product-tbody"></tbody>
         </table>
-        </div>
     </section>
     <script src="../../../authAdmin.js" type="text/javascript"></script>
 </body>
-
 </html>

@@ -3,25 +3,29 @@ window.addEventListener('DOMContentLoaded', function () {
 
     fetchSaleOrders();
 
-    const form = document.querySelector("form");
-    const button = document.querySelector("button");
+    const form = document.querySelector("#searchForm");
+    const button = document.querySelector("#searchButton");
 
-    function fetchSaleOrders(queryParams = "") {
-
-        fetch(`/saleOrders?${queryParams}`, {
+    function fetchSaleOrders(filters = {}) {
+        fetch('/saleOrders/filter', { // Use the /filter route
+            method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`
-            }
+            },
+            body: JSON.stringify(filters)
         })
-            .then(function (response) {
-                return response.json();
-            })
-            .then(function (body) {
-                if (body.error) throw new Error(body.error);
-                const saleOrders = body.saleOrders;
-                const tbody = document.querySelector("#product-tbody");
-                tbody.innerHTML = "";
-                saleOrders.forEach(function (saleOrder) {
+        .then(function (response) {
+            if (!response.ok) throw new Error('Failed to fetch sale orders');
+            return response.json();
+        })
+        .then(function (body) {
+            if (body.error) throw new Error(body.error);
+            const saleOrders = body.saleOrders;
+            const tbody = document.querySelector("#product-tbody");
+            tbody.innerHTML = "";
+            saleOrders.forEach(function (saleOrder) {
+                saleOrder.saleOrderItems.forEach(item => {
                     const row = document.createElement("tr");
                     row.classList.add("product");
                     const nameCell = document.createElement("td");
@@ -36,16 +40,16 @@ window.addEventListener('DOMContentLoaded', function () {
                     const productTypeCell = document.createElement("td");
                     const memberUsernameCell = document.createElement("td");
 
-                    nameCell.textContent = saleOrder.name;
-                    descriptionCell.textContent = saleOrder.description;
-                    unitPriceCell.textContent = saleOrder.unitPrice;
-                    quantityCell.textContent = saleOrder.quantity;
-                    countryCell.textContent = saleOrder.country;
-                    imageUrlCell.innerHTML = `<img src="${saleOrder.imageUrl}" alt="Product Image">`;
+                    nameCell.textContent = item.name;
+                    descriptionCell.textContent = item.description;
+                    unitPriceCell.textContent = parseFloat(item.unitPrice).toFixed(2);
+                    quantityCell.textContent = parseInt(item.quantity);
+                    countryCell.textContent = item.country;
+                    imageUrlCell.innerHTML = `<img src="${item.imageUrl}" alt="Product Image" width="100" height="100">`;
                     orderIdCell.textContent = saleOrder.saleOrderId;
                     orderDatetimeCell.textContent = new Date(saleOrder.orderDatetime).toLocaleString();
                     statusCell.textContent = saleOrder.status;
-                    productTypeCell.textContent = saleOrder.productType;
+                    productTypeCell.textContent = item.productType;
                     memberUsernameCell.textContent = saleOrder.username;
 
                     row.appendChild(nameCell);
@@ -61,10 +65,11 @@ window.addEventListener('DOMContentLoaded', function () {
                     row.appendChild(memberUsernameCell);
                     tbody.appendChild(row);
                 });
-            })
-            .catch(function (error) {
-                console.error(error);
             });
+        })
+        .catch(function (error) {
+            console.error('Error fetching sale orders:', error);
+        });
     }
 
     function handleFormSubmission(event) {
@@ -72,7 +77,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
         const formElements = Array.from(form.elements);
         const formValues = formElements.reduce(function (values, element) {
-            if (element.type !== "submit") {
+            if (element.type !== "submit" && element.value) {
                 values[element.name] = element.value;
             }
             return values;
@@ -86,12 +91,9 @@ window.addEventListener('DOMContentLoaded', function () {
                 return option.value;
             });
 
-            console.log(status.join(','))
+        const filters = { ...formValues, status: status.join(',') };
 
-        const queryParams = new URLSearchParams({...formValues, status: status.join(',')}).toString();
-
-        fetchSaleOrders(queryParams);
-
+        fetchSaleOrders(filters);
     }
 
     button.addEventListener("click", handleFormSubmission);
