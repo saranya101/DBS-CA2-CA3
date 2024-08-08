@@ -11,3 +11,19 @@ section {
 .value {
     font-weight: bold;
 }
+
+.button {
+    display: inline-block;
+
+    text-align: center;
+    color: #ffffff;
+    background-color: #022c58;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .button:hover {
+    background-color: #0056b3;
+  }

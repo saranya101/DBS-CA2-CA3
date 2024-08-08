@@ -238,3 +238,40 @@ module.exports.updateCartSingleCartItem = function (req, res) {
     }
   };
   
+
+
+
+
+
+
+// ##############################################################
+//  CHECKOUT SECTION
+// ##############################################################
+
+module.exports.getCartItems = async function (req, res) {
+  const memberId = res.locals.member_id;
+
+  try {
+    const cartItems = await cartModel.getCartItems(memberId);
+    res.status(200).json(cartItems);
+  } catch (error) {
+    console.error('Error retrieving cart items:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+
+
+module.exports.applyCoupon = async function (req, res) {
+  const memberId = res.locals.member_id;
+  const { couponCode } = req.body;
+
+  try {
+    const { cartItems, totalDiscountedPrice, alertMessage } = await cartModel.applyCoupon(memberId, couponCode);
+    res.status(200).json({ success: true, cartItems, totalDiscountedPrice, alertMessage });
+  } catch (error) {
+    console.error('Error applying coupon:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+};

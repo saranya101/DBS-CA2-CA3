@@ -19,4 +19,6 @@ router.put('/cart-items', cartController.bulkUpdateCartItems);
 
 // Route for bulk delete
 router.delete('/cart-items', cartController.bulkDeleteCartItems);
+router.get('/checkout', cartController.getCartItems);
+router.post('/apply-coupon', cartController.applyCoupon);
 module.exports = router;

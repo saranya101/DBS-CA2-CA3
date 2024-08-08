@@ -334,3 +334,8 @@ window.addEventListener('DOMContentLoaded', function () {
     bulkDeleteButton.addEventListener('click', () => bulkDeleteCartItems(token));
   }
 });
+
+
+document.getElementById('checkout-button').addEventListener('click', function() {
+  window.location.href = '../../checkOut'; // Replace '/checkout' with the URL of the page you want to navigate to
+});

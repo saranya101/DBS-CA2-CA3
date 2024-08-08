@@ -294,3 +294,106 @@ module.exports.bulkDeleteCartItems = function bulkDeleteCartItems(memberId, prod
 
     return Promise.all(deletePromises);
 };
+
+
+
+
+
+// ##############################################################
+//  CHECKOUT SECTION
+// ##############################################################
+
+module.exports.getCartItems = async function getCartItems(memberId) {
+  try {
+    const cartItems = await prisma.cartItem.findMany({
+      where: { memberId },
+      include: {
+        product: {
+          include: {
+            productDiscounts: true
+          }
+        }
+      }
+    });
+
+    return cartItems.map(cartItem => {
+      const discount = cartItem.product.productDiscounts.length > 0 ? cartItem.product.productDiscounts[0] : null;
+      const discountedPrice = discount
+        ? cartItem.product.unit_price * (1 - discount.discountPercentage / 100)
+        : cartItem.product.unit_price;
+
+      return {
+        cartItemId: cartItem.id,
+        productId: cartItem.product.id,
+        name: cartItem.product.name,
+        description: cartItem.product.description,
+        country: cartItem.product.country,
+        unitPrice: parseFloat(cartItem.product.unit_price.toFixed(2)),
+        discountedPrice: parseFloat(discountedPrice.toFixed(2)),
+        quantity: cartItem.quantity,
+        imageUrl: cartItem.product.image_url
+      };
+    });
+  } catch (error) {
+    console.error('Error getting cart items:', error);
+    throw error;
+  }
+};
+
+
+
+
+
+
+module.exports.applyCoupon = async function applyCoupon(memberId, couponCode) {
+  const coupon = await prisma.coupon.findUnique({
+    where: { code: couponCode }
+  });
+
+  if (!coupon) {
+    throw new Error('Invalid coupon code');
+  }
+
+  const usedCoupon = await prisma.usedCoupon.findFirst({
+    where: {
+      couponId: coupon.id,
+      memberId: memberId
+    }
+  });
+
+  if (usedCoupon) {
+    throw new Error('Coupon has already been used');
+  }
+
+  const cartItems = await this.getCartItems(memberId);
+  const totalDiscountedPrice = cartItems.reduce((acc, item) => acc + item.discountedPrice * item.quantity, 0);
+
+  if (totalDiscountedPrice < coupon.minPurchaseAmount) {
+    throw new Error(`Coupon requires a minimum purchase of $${coupon.minPurchaseAmount.toFixed(2)}`);
+  }
+
+  const discountAmount = totalDiscountedPrice * (coupon.discountPercentage / 100);
+  const finalDiscountedPrice = totalDiscountedPrice - discountAmount;
+
+  // Update each cart item's discounted price to reflect the applied coupon
+  const updatedCartItems = cartItems.map(item => {
+    return {
+      ...item,
+      discountedPrice: item.discountedPrice * (1 - coupon.discountPercentage / 100)
+    };
+  });
+
+  // Insert record into UsedCoupon table
+  await prisma.usedCoupon.create({
+    data: {
+      couponId: coupon.id,
+      memberId: memberId
+    }
+  });
+
+  return {
+    cartItems: updatedCartItems,
+    totalDiscountedPrice: finalDiscountedPrice,
+    alertMessage: 'Coupon applied successfully!'
+  };
+};
