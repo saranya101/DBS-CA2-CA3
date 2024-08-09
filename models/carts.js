@@ -402,6 +402,20 @@ module.exports.applyCoupon = async function applyCoupon(memberId, couponCode) {
 // ##############################################################
 //  SHIPPING ORDERS
 // ##############################################################
+module.exports.getPointsForUser = async function getPointsForUser(memberId) {
+  try {
+      const pointsBalance = await prisma.pointsBalance.findUnique({
+          where: {
+              member_id: memberId
+          }
+      });
+
+      return pointsBalance ? pointsBalance.points : 0; // Return 0 if no points record found
+  } catch (error) {
+      console.error('Error retrieving points balance:', error);
+      throw error;
+  }
+};
 
 module.exports.getShippingOptions = async function () {
   try {
@@ -410,5 +424,58 @@ module.exports.getShippingOptions = async function () {
   } catch (error) {
     console.error('Error retrieving shipping options:', error);
     throw error;
+  }
+};
+
+
+module.exports.getPointsBalance = async function (memberId) {
+  try {
+      const pointsBalance = await prisma.pointsBalance.findUnique({
+          where: { member_id: memberId },
+      });
+
+      return pointsBalance ? pointsBalance.points : 0;
+  } catch (error) {
+      console.error('Error retrieving points balance:', error);
+      throw error;
+  }
+};
+
+
+
+module.exports.applyPoints = async function (memberId, pointsToApply) {
+  try {
+      // Retrieve cart items with discounted prices
+      const cartItems = await this.getCartItems(memberId);
+
+      // Calculate the total discounted price
+      let totalDiscountedPrice = cartItems.reduce((acc, item) => {
+          return acc + (item.discountedPrice * item.quantity);
+      }, 0);
+
+      // Calculate the value of points being applied
+      const pointsValue = pointsToApply * 0.1; // Assuming 1 point = $0.1
+
+      // Calculate the total after applying points
+      const totalDiscountWithPoints = Math.max(totalDiscountedPrice - pointsValue, 0); // Ensure it doesn't go below zero
+
+      // Return the updated cart items and the new total prices
+      return { cartItems, totalDiscountedPrice, totalDiscountWithPoints };
+  } catch (error) {
+      console.error('Error applying points:', error);
+      throw error;
+  }
+};
+
+
+module.exports.deductPoints = async function (memberId, pointsToDeduct) {
+  try {
+      await prisma.pointsBalance.update({
+          where: { member_id: memberId },
+          data: { points: { decrement: pointsToDeduct } },
+      });
+  } catch (error) {
+      console.error('Error deducting points:', error);
+      throw error;
   }
 };

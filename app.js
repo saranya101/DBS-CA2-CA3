@@ -1,5 +1,6 @@
 const express = require('express');
 const createHttpError = require('http-errors');
+const bodyParser = require('body-parser');
 
 const authRoute = require('./routes/auth');
 const productsRoute = require('./routes/products');
@@ -10,6 +11,7 @@ const dashboardRoute = require('./routes/dashboard');
 const membersRoute = require('./routes/members');
 const favouriteRoute = require('./routes/favourite');
 const userRoute = require('./routes/user')
+const socialRoute = require('./routes/social')
 // to parse NUMERIC types for pg-node
 // https://github.com/brianc/node-postgres/issues/811
 const types = require('pg').types
@@ -17,9 +19,9 @@ types.setTypeParser(1700, function(val) {
     return parseFloat(val);
 });
 
+
 const app = express();
 app.use(express.json()); // to process JSON in request body
-
 
 app.use(express.static('public'));
 
@@ -32,7 +34,7 @@ app.use('/dashboard', dashboardRoute);
 app.use('/members', membersRoute);
 app.use('/favourite', favouriteRoute)
 app.use('/user', userRoute)
-
+app.use('/engagement', socialRoute)
 
 app.use(function (req, res, next) {
     return next(createHttpError(404, `Unknown Resource ${req.method} ${req.originalUrl}`));

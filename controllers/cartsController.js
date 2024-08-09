@@ -290,3 +290,38 @@ module.exports.getShippingOptions = async function (req, res) {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+module.exports.getUserPoints = async function (req, res) {
+  const memberId = res.locals.member_id; // Assuming user is authenticated and ID is stored in `res.locals`
+
+  try {
+      const points = await cartModel.getPointsForUser(memberId);
+      res.status(200).json({ points });
+  } catch (error) {
+      console.error('Error retrieving user points:', error.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+module.exports.applyPoints = async function (req, res) {
+  const memberId = res.locals.member_id;
+  const { pointsToApply } = req.body;
+
+  try {
+      const pointsBalance = await cartModel.getPointsBalance(memberId);
+
+      if (pointsBalance < pointsToApply) {
+          return res.status(400).json({ success: false, message: 'Insufficient points.' });
+      }
+
+      const { cartItems, totalDiscountedPrice, totalDiscountWithPoints } = await cartModel.applyPoints(memberId, pointsToApply);
+
+      // Deduct points from the user's balance
+      await cartModel.deductPoints(memberId, pointsToApply);
+
+      res.json({ success: true, cartItems, totalDiscountedPrice, totalDiscountWithPoints });
+  } catch (error) {
+      console.error('Error applying points:', error.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};

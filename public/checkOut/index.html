@@ -18,31 +18,40 @@
         <a href="#" onclick="logout()">Logout</a>
     </header>
     <section>
-      <div class="container">
-        <h1>Checkout</h1>
-        <div id="cart-items"></div>
+        <div class="container">
+            <h1>Checkout</h1>
+            <div id="cart-items"></div>
 
-        <div class="cart-summary">
-          <div>Total Quantity: <span id="total-quantity">0</span></div><br>
-          <div>Total Price: $<span id="total-price">0.00</span></div><br>
-          <div>Total Discounted Price: $<span id="total-discounted-price">0.00</span></div><br>
-          <div>Total Unique Products: <span id="total-unique-products">0</span></div><br>
-        </div>
-        
-        <div>
-          <input type="text" id="coupon-code" placeholder="Enter coupon code">
-          <button id="apply-coupon-button">Apply Coupon</button>
-        </div>
+            <div class="cart-summary">
+                <div>Total Quantity: <span id="total-quantity">0</span></div><br>
+                <div>Total Price: $<span id="total-price">0.00</span></div><br>
+                <div>Total Discounted Price: $<span id="total-discounted-price">0.00</span></div><br>
+                <div>Total Unique Products: <span id="total-unique-products">0</span></div><br>
+            </div>
+            
+            <div>
+                <input type="text" id="coupon-code" placeholder="Enter coupon code">
+                <button id="apply-coupon-button">Apply Coupon</button>
+            </div>
 
-        <div>
-          <label for="shipping-options">Select Shipping Option:</label>
-          <select id="shipping-options">
-            <option value="" disabled selected>Select shipping option</option>
-          </select>
+            <div>
+                <label for="shipping-options">Select Shipping Option:</label>
+                <select id="shipping-options">
+                    <option value="" disabled selected>Select shipping option</option>
+                </select>
+            </div>
+
+            <!-- New Section to Apply Points -->
+            <div id="points-section">
+                <div>Available Points: <span id="available-points">0</span></div><br>
+                <input type="number" id="points-to-use" min="0" placeholder="Enter points to use">
+                <button id="apply-points-button">Apply Points</button>
+            </div>
+            
+            <div>Total After Points Discount: $<span id="total-after-points">0.00</span></div><br>
+
+            <a href="../../checkOut" id="checkout-button">Confirm Checkout</a>
         </div>
-        
-        <a href="../../checkOut" id="checkout-button">Confirm Checkout</a>
-      </div>
     </section>
     <script src="../../../auth.js" type="text/javascript"></script>
 </body>

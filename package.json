@@ -6,6 +6,7 @@
         "express": "^4.19.2",
         "http-errors": "^2.0.0",
         "jsonwebtoken": "^9.0.2",
+        "multer": "^1.4.5-lts.1",
         "pg": "^8.11.3",
         "pg-camelcase": "^0.0.3",
         "prisma-case-format": "^2.2.1",
