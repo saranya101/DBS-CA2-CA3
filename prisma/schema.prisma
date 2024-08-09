@@ -46,8 +46,13 @@ model member {
     cartItem             cartItem[]
       usedProductDiscounts UsedProductDiscount[]
   usedCoupons          UsedCoupon[]
-
+  socialMediaEngagements SocialMediaEngagement[]
+   referralsMade          Referral[] @relation("ReferralReferrer")
+  referralsReceived      Referral[] @relation("ReferralReferred")
+  pointsBalance          PointsBalance?
+  referral_code          String?           @unique @db.VarChar(50)
 }
+
 
 model member_role {
   id     Int      @id @default(autoincrement())
@@ -186,4 +191,32 @@ model shipping_method {
   cost         Decimal  @db.Decimal(10, 2)
   deliveryTime String   @db.VarChar(50)
   sale_orders  sale_order[]
+}
+
+model SocialMediaEngagement {
+  id         Int       @id @default(autoincrement())
+  member_id  Int
+  action     String    // e.g., 'follow', 'like', 'share'
+  platform   String    // e.g., 'Facebook', 'Twitter'
+  points     Int       // Points awarded for this action
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  member     member    @relation(fields: [member_id], references: [id], onDelete: Cascade)
+}
+
+model Referral {
+  id             Int       @id @default(autoincrement())
+  referrer_id    Int       // ID of the member who referred someone
+  referred_id    Int       // ID of the new member who was referred
+  referral_code  String    @unique
+  points_awarded Int       // Points awarded to both the referrer and the referred
+  created_at     DateTime  @default(now()) @db.Timestamp(6)
+  referrer       member    @relation("ReferralReferrer", fields: [referrer_id], references: [id], onDelete: Cascade)
+  referred       member    @relation("ReferralReferred", fields: [referred_id], references: [id], onDelete: Cascade)
+}
+
+model PointsBalance {
+  id         Int       @id @default(autoincrement())
+  member_id  Int       @unique
+  points     Int       @default(0)
+  member     member    @relation(fields: [member_id], references: [id], onDelete: Cascade)
 }

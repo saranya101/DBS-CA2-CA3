@@ -27,6 +27,9 @@
             <li>Inspect the member table for more information on all the <b>seeded</b> member records</li>
         </ul>
     </h5>
+
+    <button id="registerBtn">Register</button> <!-- Register Button -->
+
     <script>
         document.getElementById("loginForm").addEventListener("submit", function (event) {
             event.preventDefault(); // Prevent form submission
@@ -73,6 +76,11 @@
                 .catch(function (error) {
                     console.log(error);
                 });
+        });
+
+        // Event listener for the Register button
+        document.getElementById("registerBtn").addEventListener("click", function () {
+            window.location.href = "/register.html";  // Redirect to the registration page
         });
     </script>
 </body>

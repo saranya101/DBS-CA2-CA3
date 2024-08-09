@@ -22,7 +22,7 @@ module.exports.login = function (req, res, next) {
         .catch(function (error) {
             return res.status(500).json({ message: error.message });
         });
-}
+};
 
 module.exports.retrieveAgeGroupSpending = async function (req, res) {
     const gender = req.query.gender || null;
@@ -44,10 +44,51 @@ module.exports.retrieveAgeGroupSpending = async function (req, res) {
 module.exports.generateCustomerLifetimeValue = function (req, res) {
     return memberModel.generateCustomerLifetimeValue()
         .then(function(result){
-            return res.json({ message: "Generating CLV" })
-        } )
+            return res.json({ message: "Generating CLV" });
+        })
         .catch(function(error){
             console.error(error);
-            res.status(500).send({error: error.message});
+            res.status(500).send({ error: error.message });
         });
-}
+};
+
+module.exports.assignReferralCodes = async function (req, res) {
+    try {
+        await memberModel.assignReferralCodesToExistingUsers();
+        res.json({ message: 'Referral codes assigned to all users.' });
+    } catch (error) {
+        console.error('Error assigning referral codes:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+module.exports.registerUser = async function (req, res) {
+    const { username, email, dob, gender, role } = req.body;
+
+    // Basic validation
+    if (!username || !email || !res.locals.hash || !dob || !gender) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    try {
+        // Check if the email already exists
+        const existingUserByEmail = await memberModel.retrieveByEmail(email);
+        if (existingUserByEmail) {
+            return res.status(409).json({ message: 'Email already in use' });
+        }
+
+        // Check if the username already exists
+        const existingUserByUsername = await memberModel.retrieveByUsername(username);
+        if (existingUserByUsername) {
+            return res.status(409).json({ message: 'Username already in use' });
+        }
+
+        // Register the new user using the hashed password stored in res.locals.hash
+        const newUser = await memberModel.registerUser(username, email, res.locals.hash, dob, gender, role);
+        res.status(201).json({ message: 'User registered successfully', user: newUser });
+    } catch (error) {
+        console.error('Error in register controller:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};

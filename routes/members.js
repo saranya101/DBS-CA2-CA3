@@ -1,6 +1,7 @@
 const express = require('express');
 const membersController = require('../controllers/membersController');
 const jwtMiddleware = require('../middleware/jwtMiddleware');
+const bcryptMiddleware = require('../middleware/bcryptMiddleware');
 
 const router = express.Router();
 
@@ -12,5 +13,6 @@ const router = express.Router();
 router.use(jwtMiddleware.verifyToken);
 
 router.get('/generateClv', membersController.generateCustomerLifetimeValue);
+router.post('/assign-referral-codes', membersController.assignReferralCodes);
 
 module.exports = router;

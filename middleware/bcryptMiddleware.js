@@ -20,17 +20,24 @@ module.exports.comparePassword = function (req, res, next) {
     bcrypt.compare(req.body.password, res.locals.hash, callback);
 };
 
+
 // The hashPassword function hashes the password in the request body
 module.exports.hashPassword = function (req, res, next) {
-    const callback = (err, hash) => {
+    // Check if the password is provided in the request body
+    if (!req.body.password) {
+        return res.status(400).json({ message: 'Password is required' });
+    }
+
+    // Hash the password
+    bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
         if (err) {
             console.error("Error bcrypt:", err);
-            res.status(500).json(err);
-        } else {
-            res.locals.hash = hash;
-            next();
+            return res.status(500).json({ message: 'Error hashing password' });
         }
-    };
-    console.log(req.body.password, saltRounds)
-    bcrypt.hash(req.body.password, saltRounds, callback);
+
+        // Store the hashed password in res.locals.hash
+        res.locals.hash = hash;
+        console.log(res.locals.hash)
+        next();
+    });
 };
