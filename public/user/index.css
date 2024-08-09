@@ -1,0 +1,41 @@
+body {
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+
+
+main {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+#user-info-container {
+    margin-top: 20px;
+}
+
+.user-info {
+    margin-bottom: 20px;
+}
+
+.user-info h3 {
+    margin-bottom: 10px;
+    color: #444;
+}
+
+
+
+.user-info .referrals, .user-info .orders, .user-info .reviews, .user-info .favourites {
+    margin-top: 10px;
+    padding-left: 20px;
+}

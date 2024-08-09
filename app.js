@@ -9,6 +9,7 @@ const cartsRoute = require('./routes/carts');
 const dashboardRoute = require('./routes/dashboard');
 const membersRoute = require('./routes/members');
 const favouriteRoute = require('./routes/favourite');
+const userRoute = require('./routes/user')
 // to parse NUMERIC types for pg-node
 // https://github.com/brianc/node-postgres/issues/811
 const types = require('pg').types
@@ -30,6 +31,7 @@ app.use('/carts', cartsRoute);
 app.use('/dashboard', dashboardRoute);
 app.use('/members', membersRoute);
 app.use('/favourite', favouriteRoute)
+app.use('/user', userRoute)
 
 
 app.use(function (req, res, next) {

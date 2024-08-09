@@ -63,32 +63,27 @@ module.exports.assignReferralCodes = async function (req, res) {
 };
 
 
+
 module.exports.registerUser = async function (req, res) {
-    const { username, email, dob, gender, role } = req.body;
+    const { username, email, dob, gender, referral_code } = req.body;
+    const password = res.locals.hash; // Use the hashed password from bcryptMiddleware
 
     // Basic validation
-    if (!username || !email || !res.locals.hash || !dob || !gender) {
+    if (!username || !email || !password || !dob || !gender) {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
     try {
-        // Check if the email already exists
-        const existingUserByEmail = await memberModel.retrieveByEmail(email);
-        if (existingUserByEmail) {
-            return res.status(409).json({ message: 'Email already in use' });
-        }
-
-        // Check if the username already exists
-        const existingUserByUsername = await memberModel.retrieveByUsername(username);
-        if (existingUserByUsername) {
-            return res.status(409).json({ message: 'Username already in use' });
-        }
-
-        // Register the new user using the hashed password stored in res.locals.hash
-        const newUser = await memberModel.registerUser(username, email, res.locals.hash, dob, gender, role);
+        // Register the new user with the provided information
+        const newUser = await memberModel.registerUser({ username, email, password, dob, gender, referral_code });
         res.status(201).json({ message: 'User registered successfully', user: newUser });
     } catch (error) {
         console.error('Error in register controller:', error.message);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+// Function to generate a random referral code
+function generateReferralCode() {
+    return crypto.randomBytes(4).toString('hex').toUpperCase();
+}

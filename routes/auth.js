@@ -10,7 +10,11 @@ const router = express.Router();
 // 3) the jwtMiddleware.generateToken function to generate a token
 // 4) the jwtMiddleware.sendToken function to send the token to the client.
 router.post("/login", membersController.login, bcryptMiddleware.comparePassword, jwtMiddleware.generateToken, jwtMiddleware.sendToken);
-router.post('/register', bcryptMiddleware.hashPassword, membersController.registerUser);
+router.post('/register', (req, res, next) => {
+    console.log('Register route accessed');
+    next();
+}, bcryptMiddleware.hashPassword, membersController.registerUser);
+
 module.exports = router;
 
 

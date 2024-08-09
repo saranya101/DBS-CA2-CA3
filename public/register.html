@@ -93,6 +93,9 @@
                 <option value="O">Other</option>
             </select><br>
 
+            <label for="referralCode">Referral Code (Optional):</label>
+            <input type="text" id="referralCode" name="referralCode"><br>
+
             <input type="submit" value="Register">
         </form>
     </div>
@@ -107,14 +110,22 @@
             const password = document.getElementById("password").value;
             const dob = document.getElementById("dob").value;
             const gender = document.getElementById("gender").value;
+            const referralCode = document.getElementById("referralCode").value;
 
             // Send the request with the form data as JSON
-            fetch("http://localhost:3000/auth/register", {
+            fetch("/auth/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ username: username, email: email, password: password, dob: dob, gender: gender })
+                body: JSON.stringify({ 
+                    username: username, 
+                    email: email, 
+                    password: password, 
+                    dob: dob, 
+                    gender: gender, 
+                    referral_code: referralCode // Include referral code
+                })
             })
                 .then(function (response) {
                     if (response.status === 201) {

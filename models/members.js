@@ -3,56 +3,89 @@ const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+const POINTS_FOR_REFERRAL = 50;
+
 // Function to generate a random referral code
 function generateReferralCode() {
     return crypto.randomBytes(4).toString('hex').toUpperCase();
 }
 
-async function registerUser(username, email, password, dob, gender, role = 1) {
+async function registerUser({ username, email, password, dob, gender, referral_code }) {
     try {
-        let referralCode;
+        let referralUserId = null;
 
-        // Generate a unique referral code for the new user
-        while (true) {
-            referralCode = generateReferralCode();
-            const existingUser = await prisma.member.findUnique({
-                where: { referral_code: referralCode },
+        // Check if the referral code exists
+        if (referral_code) {
+            const referrer = await prisma.member.findUnique({
+                where: { referral_code: referral_code }
             });
-            if (!existingUser) break; // Exit loop if code is unique
+
+            if (referrer) {
+                referralUserId = referrer.id;
+            } else {
+                throw new Error('Invalid referral code.');
+            }
         }
 
-        // Ensure dob is a valid ISO-8601 string
-        const dobDate = new Date(dob).toISOString();
+        // Generate a unique referral code for the new user
+        const newUserReferralCode = generateReferralCode();
 
-        // Create the new user with the referral code
+        // Create the new user
         const newUser = await prisma.member.create({
             data: {
                 username,
                 email,
                 password, // The password should already be hashed before passing here
-                dob: dobDate,
+                dob: new Date(dob),
                 gender,
-                referral_code: referralCode,
-                role
-            },
+                referral_code: newUserReferralCode,
+                role: 1 // Default role as normal user
+            }
         });
 
-        console.log(`Created new user with referral code: ${referralCode}`);
+        // Handle referral points if the referral code was provided and valid
+        if (referralUserId) {
+            // Award points to the referrer
+            await prisma.pointsBalance.upsert({
+                where: { member_id: referralUserId },
+                update: { points: { increment: POINTS_FOR_REFERRAL } },
+                create: { member_id: referralUserId, points: POINTS_FOR_REFERRAL }
+            });
+
+            // Award points to the new user (referred user)
+            await prisma.pointsBalance.create({
+                data: {
+                    member_id: newUser.id,
+                    points: POINTS_FOR_REFERRAL
+                }
+            });
+
+            // Create a referral record
+            await prisma.referral.create({
+                data: {
+                    referrer_id: referralUserId,
+                    referred_id: newUser.id,
+                    referral_code: referral_code,
+                    points_awarded: POINTS_FOR_REFERRAL
+                }
+            });
+        } else {
+            // If no referral code was used, just create the points balance with zero points
+            await prisma.pointsBalance.create({
+                data: {
+                    member_id: newUser.id,
+                    points: 0
+                }
+            });
+        }
+
         return newUser;
+
     } catch (error) {
         console.error('Error registering user:', error);
         throw error;
     }
 }
-
-function generateReferralCode() {
-    return crypto.randomBytes(4).toString('hex').toUpperCase();
-}
-
-module.exports = {
-    // Other functions
-    registerUser: registerUser,
-};
 
 
 // Retrieve a user by email
