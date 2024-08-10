@@ -344,7 +344,6 @@ module.exports.getCartItems = async function getCartItems(memberId) {
 
 
 
-
 module.exports.applyCoupon = async function applyCoupon(memberId, couponCode) {
   const coupon = await prisma.coupon.findUnique({
     where: { code: couponCode }
@@ -379,7 +378,9 @@ module.exports.applyCoupon = async function applyCoupon(memberId, couponCode) {
   const updatedCartItems = cartItems.map(item => {
     return {
       ...item,
-      discountedPrice: item.discountedPrice * (1 - coupon.discountPercentage / 100)
+      discountedPrice: item.discountedPrice * (1 - coupon.discountPercentage / 100),
+      couponApplied: true,
+      couponDiscount: discountAmount // Store the coupon discount
     };
   });
 
@@ -394,9 +395,11 @@ module.exports.applyCoupon = async function applyCoupon(memberId, couponCode) {
   return {
     cartItems: updatedCartItems,
     totalDiscountedPrice: finalDiscountedPrice,
-    alertMessage: 'Coupon applied successfully!'
+    alertMessage: 'Coupon applied successfully!',
+    couponDiscount: discountAmount // Return the coupon discount
   };
 };
+
 
 
 // ##############################################################
@@ -443,27 +446,41 @@ module.exports.getPointsBalance = async function (memberId) {
 
 
 
-module.exports.applyPoints = async function (memberId, pointsToApply) {
+module.exports.applyPoints = async function (req, res) {
+  const memberId = res.locals.member_id;
+  const { pointsToApply } = req.body;
+
   try {
-      // Retrieve cart items with discounted prices
-      const cartItems = await this.getCartItems(memberId);
+      const pointsBalance = await cartModel.getPointsBalance(memberId);
 
-      // Calculate the total discounted price
-      let totalDiscountedPrice = cartItems.reduce((acc, item) => {
-          return acc + (item.discountedPrice * item.quantity);
-      }, 0);
+      if (pointsBalance < pointsToApply) {
+          return res.status(400).json({ success: false, message: 'Insufficient points.' });
+      }
 
-      // Calculate the value of points being applied
+      // Fetch the current cart to check if a coupon has been applied
+      const cartItems = await cartModel.getCartItems(memberId);
+
+      // Assume the cart model returns information about coupon application
+      const couponApplied = cartItems.some(item => item.couponApplied); // Check if any item has a coupon applied
+      const couponDiscount = couponApplied ? cartItems[0].couponDiscount : 0; // Retrieve the coupon discount
+
+      let totalDiscountedPrice = cartItems.reduce((acc, item) => acc + item.discountedPrice * item.quantity, 0);
+
+      // Apply the coupon discount before applying points
+      totalDiscountedPrice -= couponDiscount;
+
+      // Calculate the total after points are applied
       const pointsValue = pointsToApply * 0.1; // Assuming 1 point = $0.1
-
-      // Calculate the total after applying points
       const totalDiscountWithPoints = Math.max(totalDiscountedPrice - pointsValue, 0); // Ensure it doesn't go below zero
 
-      // Return the updated cart items and the new total prices
-      return { cartItems, totalDiscountedPrice, totalDiscountWithPoints };
+      // Deduct points from the user's balance
+      await cartModel.deductPoints(memberId, pointsToApply);
+
+      // Respond with the updated cart information
+      res.json({ success: true, cartItems, totalDiscountedPrice, totalDiscountWithPoints, couponDiscount });
   } catch (error) {
-      console.error('Error applying points:', error);
-      throw error;
+      console.error('Error applying points:', error.message);
+      res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 

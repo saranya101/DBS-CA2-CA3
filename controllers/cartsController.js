@@ -314,11 +314,27 @@ module.exports.applyPoints = async function (req, res) {
           return res.status(400).json({ success: false, message: 'Insufficient points.' });
       }
 
-      const { cartItems, totalDiscountedPrice, totalDiscountWithPoints } = await cartModel.applyPoints(memberId, pointsToApply);
+      // Fetch the current cart to check if a coupon has been applied
+      const cartItems = await cartModel.getCartItems(memberId);
+
+      // Assume the cart model returns information about coupon application
+      const couponApplied = cartItems.some(item => item.couponApplied); // Check if any item has a coupon applied
+      let totalDiscountedPrice = cartItems.reduce((acc, item) => acc + item.discountedPrice * item.quantity, 0);
+
+      // If a coupon is applied, apply the coupon discount before applying points
+      if (couponApplied) {
+          const couponDiscount = cartItems[0].couponDiscount || 0; // Assuming the discount is the same across items
+          totalDiscountedPrice -= couponDiscount;
+      }
+
+      // Calculate the total after points are applied
+      const pointsValue = pointsToApply * 0.1; // Assuming 1 point = $0.1
+      const totalDiscountWithPoints = Math.max(totalDiscountedPrice - pointsValue, 0); // Ensure it doesn't go below zero
 
       // Deduct points from the user's balance
       await cartModel.deductPoints(memberId, pointsToApply);
 
+      // Respond with the updated cart information
       res.json({ success: true, cartItems, totalDiscountedPrice, totalDiscountWithPoints });
   } catch (error) {
       console.error('Error applying points:', error.message);

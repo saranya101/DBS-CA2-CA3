@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Add event listener to the shipping options dropdown
     const shippingSelect = document.getElementById('shipping-options');
     if (shippingSelect) {
-      shippingSelect.addEventListener('change', () => updatePricesWithShipping(cartItems));
+      shippingSelect.addEventListener('change', () => updatePricesWithShipping(cartItems, 0));
     }
   } catch (error) {
     console.error('Error fetching cart items, user points, or shipping options:', error);
@@ -48,7 +48,6 @@ async function fetchUserPoints(token) {
     console.error('Error fetching user points:', error);
   }
 }
-
 
 async function fetchCartItems(token) {
   const response = await fetch('/carts/checkout', {
@@ -85,47 +84,24 @@ async function applyCoupon() {
   const result = await response.json();
   if (result.success) {
     alert(result.alertMessage);
+
+    // Render the cart items after coupon application
     renderCartItems(result.cartItems, result.totalDiscountedPrice, 0);
+
+    // Update the prices with the selected shipping option using the updated cart items from the coupon
+    const shippingSelect = document.getElementById('shipping-options');
+    if (shippingSelect) {
+      // Update shipping prices when the shipping option changes
+      shippingSelect.addEventListener('change', () => updatePricesWithShipping(result.cartItems, 0)); // Pass updated cart items
+    }
+
+    // Initial call to update shipping prices with coupon-applied items
+    updatePricesWithShipping(result.cartItems, 0); 
   } else {
     alert(result.error);
   }
 }
 
-async function applyPoints() {
-  const token = getAuthToken(); // Get the token when applying points
-
-  // Ensure the correct ID is used here
-  const pointsToApplyElement = document.getElementById('points-to-use');
-  
-  if (!pointsToApplyElement) {
-    alert("Points input element not found.");
-    return;
-  }
-
-  const pointsToApply = parseInt(pointsToApplyElement.value, 10);
-
-  if (isNaN(pointsToApply) || pointsToApply <= 0) {
-    alert("Please enter a valid number of points to apply.");
-    return;
-  }
-
-  const response = await fetch('/carts/apply-points', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify({ pointsToApply })
-  });
-
-  const result = await response.json();
-  if (result.success) {
-    alert('Points applied successfully!');
-    renderCartItems(result.cartItems, result.totalDiscountedPrice, result.totalDiscountWithPoints);
-  } else {
-    alert(result.message || 'Error applying points.');
-  }
-}
 
 
 function renderCartItems(cartItems = [], totalDiscountedPrice = 0, totalDiscountWithPoints = 0) {
@@ -173,13 +149,11 @@ function renderCartItems(cartItems = [], totalDiscountedPrice = 0, totalDiscount
   });
 
   document.getElementById('total-quantity').textContent = totalQuantity || 0;
-document.getElementById('total-price').textContent = totalPrice ? totalPrice.toFixed(2) : '0.00';
-document.getElementById('total-discounted-price').textContent = totalDiscountedPrice > 0 ? totalDiscountedPrice.toFixed(2) : totalDiscountPrice.toFixed(2);
-document.getElementById('total-unique-products').textContent = uniqueProducts || 0;
-document.getElementById('total-after-points').textContent = totalDiscountWithPoints > 0 ? totalDiscountWithPoints.toFixed(2) : totalDiscountPrice.toFixed(2);
-
+  document.getElementById('total-price').textContent = totalPrice ? totalPrice.toFixed(2) : '0.00';
+  document.getElementById('total-discounted-price').textContent = totalDiscountedPrice > 0 ? totalDiscountedPrice.toFixed(2) : totalDiscountPrice.toFixed(2);
+  document.getElementById('total-unique-products').textContent = uniqueProducts || 0;
+  document.getElementById('total-after-points').textContent = totalDiscountWithPoints > 0 ? totalDiscountWithPoints.toFixed(2) : totalDiscountPrice.toFixed(2);
 }
-
 
 // Function to get the authentication token
 function getAuthToken() {
@@ -211,8 +185,8 @@ async function fetchShippingOptions(token) {
   });
 }
 
-// Function to update prices with selected shipping option
-function updatePricesWithShipping(cartItems, pointsApplied = 0) {
+
+function updatePricesWithShipping(cartItems, pointsApplied = 0, couponDiscount = 0) {
   const shippingSelect = document.getElementById('shipping-options');
   const selectedOption = shippingSelect.options[shippingSelect.selectedIndex];
   const shippingCost = parseFloat(selectedOption.dataset.cost) || 0;  // Get the shipping cost
@@ -222,26 +196,33 @@ function updatePricesWithShipping(cartItems, pointsApplied = 0) {
   let totalDiscountPrice = 0.0;
 
   cartItems.forEach(item => {
-    // Get unit price and discounted price (if any)
     const unitPrice = parseFloat(item.unitPrice || item.product.unit_price || 0);
     const discountedPrice = parseFloat(item.discountedPrice || unitPrice);
 
-    // Accumulate total quantity, price, and discounted price
     totalQuantity += item.quantity || 0;
     totalPrice += item.quantity * unitPrice;
     totalDiscountPrice += item.quantity * discountedPrice;
   });
 
-  // Add shipping cost to both total price and total discounted price
-  totalPrice += shippingCost;
+  // Apply coupon discount first
+  totalDiscountPrice -= couponDiscount;
+
+  // Add the shipping cost to the total price before applying the discount
+  const totalPriceWithShipping = totalPrice + shippingCost;
+
+  // Now add the shipping cost to the total discounted price
   totalDiscountPrice += shippingCost;
 
-  // Calculate the total after points are applied, making sure it doesn't go below zero
-  const totalAfterPoints = Math.max(0, totalDiscountPrice - pointsApplied) ;
+  // Calculate the total after points are applied, including shipping but before discounts
+  const totalAfterPoints = Math.max(0, totalDiscountPrice - pointsApplied);
 
   // Display the totals in the UI
-  document.getElementById('total-price').textContent = totalPrice.toFixed(2);  // Total Price with shipping
+  document.getElementById('total-price').textContent = totalPriceWithShipping.toFixed(2);  // Total Price with shipping before discounts
   document.getElementById('total-discounted-price').textContent = totalDiscountPrice.toFixed(2);  // Total Discounted Price with shipping
   document.getElementById('total-after-points').textContent = totalAfterPoints.toFixed(2);  // Total After Points Discount with shipping
+
+  // Return calculated values for further use
+  return { totalPriceWithShipping, totalDiscountPrice, totalAfterPoints };
 }
+
 
