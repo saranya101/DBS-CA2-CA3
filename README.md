@@ -105,3 +105,41 @@ DELETE REVIEW:
 1. Navigate to the page 'http://localhost:3000/review/retrieve/all/'
 2. Press on the delete button for the wanted review 
 3. Ensure you are deleting the right review and press delete 
+
+
+Database Design
+The database schema includes several key entities:
+
+Member
+Product
+SaleOrder and SaleOrderItem
+Discounts and Coupons
+Referrals and Social Media Engagements
+You can find the full schema definition in the prisma/schema.prisma file.
+
+Usage
+Creating Entities
+To create a new entity, use the relevant API endpoint with the appropriate data. For example, to register a new member:
+
+
+POST /auth/register
+Updating Entities
+Use the provided endpoints to update entities. For example, to update a cart item:
+
+
+PUT /cart/update
+Deleting Entities
+To delete a specific cart item, use the following:
+
+
+DELETE /cart/delete/:id
+Retrieving Entities
+Retrieve entities using GET requests. For example, to get all cart items:
+
+
+GET /cart/items
+Handling Transactions
+Transactions are handled within stored procedures to ensure data integrity. For example, placing an order involves a stored procedure that manages all operations within a transaction block.
+
+Testing and Error Handling
+Error handling is implemented throughout the application, with front-end validations and server-side error responses. For instance, attempting to register with an already used email will trigger an alert on the front-end.
