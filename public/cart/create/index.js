@@ -5,12 +5,12 @@ window.addEventListener('DOMContentLoaded', function () {
     const productIdInput = document.querySelector("input[name='productId']");
     if (productIdInput) {
         productIdInput.value = cartProductId;
+        productIdInput.readOnly = true; // Make the product ID input read-only
     } else {
         console.error('Product ID input element not found.');
     }
 
-    // Define addCartForm here by selecting the form element with the correct ID
-    const addCartForm = document.getElementById('add-cart-form'); // Ensure the ID matches your HTML
+    const addCartForm = document.getElementById('add-cart-form');
 
     if (!addCartForm) {
         console.error('Form element not found.');
@@ -51,7 +51,6 @@ window.addEventListener('DOMContentLoaded', function () {
             if (response.ok) {
                 alert('Product added to cart successfully!');
                 // Clear the input fields
-                productIdInput.value = '';
                 quantityInput.value = '';
                 window.location.reload();
             } else {

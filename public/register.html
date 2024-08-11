@@ -101,49 +101,54 @@
     </div>
 
     <script>
-        document.getElementById("registerForm").addEventListener("submit", function (event) {
-            event.preventDefault(); // Prevent form submission
+document.getElementById("registerForm").addEventListener("submit", function (event) {
+    event.preventDefault(); // Prevent form submission
 
-            // Get form values
-            const username = document.getElementById("username").value;
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            const dob = document.getElementById("dob").value;
-            const gender = document.getElementById("gender").value;
-            const referralCode = document.getElementById("referralCode").value;
+    // Get form values
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const dob = document.getElementById("dob").value;
+    const gender = document.getElementById("gender").value;
+    const referralCode = document.getElementById("referralCode").value;
 
-            // Send the request with the form data as JSON
-            fetch("/auth/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ 
-                    username: username, 
-                    email: email, 
-                    password: password, 
-                    dob: dob, 
-                    gender: gender, 
-                    referral_code: referralCode // Include referral code
-                })
-            })
-                .then(function (response) {
-                    if (response.status === 201) {
-                        response.json().then(function () {
-                            alert('Registered successfully. Please log in.');
-                            window.location.href = "/login.html"; // Redirect to login page
-                        });
-                    } else {
-                        // If fail, show the error message
-                        response.json().then(function (data) {
-                            alert(data.message);
-                        });
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
+    // Send the request with the form data as JSON
+    fetch("/auth/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+            username: username, 
+            email: email, 
+            password: password, 
+            dob: dob, 
+            gender: gender, 
+            referral_code: referralCode // Include referral code
+        })
+    })
+        .then(function (response) {
+            if (response.status === 201) {
+                response.json().then(function () {
+                    alert('Registered successfully. Please log in.');
+                    window.location.href = "/login.html"; // Redirect to login page
                 });
+            } else {
+                // If fail, show the error message
+                response.json().then(function (data) {
+                    alert(data.message); // Show the error message in an alert
+                });
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            alert("An unexpected error occurred. Please try again.");
         });
+});
+
+
+
+
     </script>
 </body>
 

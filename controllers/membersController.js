@@ -63,7 +63,6 @@ module.exports.assignReferralCodes = async function (req, res) {
 };
 
 
-
 module.exports.registerUser = async function (req, res) {
     const { username, email, dob, gender, referral_code } = req.body;
     const password = res.locals.hash; // Use the hashed password from bcryptMiddleware
@@ -79,7 +78,11 @@ module.exports.registerUser = async function (req, res) {
         res.status(201).json({ message: 'User registered successfully', user: newUser });
     } catch (error) {
         console.error('Error in register controller:', error.message);
-        res.status(500).json({ error: 'Internal Server Error' });
+        if (error.statusCode) {
+            res.status(error.statusCode).json({ message: error.message });
+        } else {
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
     }
 };
 

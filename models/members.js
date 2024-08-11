@@ -10,6 +10,7 @@ function generateReferralCode() {
     return crypto.randomBytes(4).toString('hex').toUpperCase();
 }
 
+
 async function registerUser({ username, email, password, dob, gender, referral_code }) {
     try {
         let referralUserId = null;
@@ -82,6 +83,18 @@ async function registerUser({ username, email, password, dob, gender, referral_c
         return newUser;
 
     } catch (error) {
+        if (error.code === 'P2002' && error.meta && error.meta.target) {
+            if (error.meta.target.includes('email')) {
+                const customError = new Error('Email already in use. Please use a different email.');
+                customError.statusCode = 400;
+                throw customError;
+            }
+            if (error.meta.target.includes('username')) {
+                const customError = new Error('Username already in use. Please choose a different username.');
+                customError.statusCode = 400;
+                throw customError;
+            }
+        }
         console.error('Error registering user:', error);
         throw error;
     }

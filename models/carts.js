@@ -431,7 +431,7 @@ module.exports.getShippingOptions = async function () {
 };
 
 
-module.exports.getPointsBalance = async function (memberId) {
+module.exports._getPointsBalance = async function (memberId) {
   try {
       const pointsBalance = await prisma.pointsBalance.findUnique({
           where: { member_id: memberId },
